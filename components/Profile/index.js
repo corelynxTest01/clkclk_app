@@ -1,6 +1,7 @@
-import { Text, View, KeyboardAvoidingView, Platform } from "react-native";
+import { View, KeyboardAvoidingView, Platform } from "react-native";
+import { useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { axios, getToken } from "../../Utils";
+import { axios, getToken, securityCheck } from "../../Utils";
 import styles from "../../Styles/login.styles";
 import Button from "../../Elements/button";
 import Input from "../../Elements/input";
@@ -25,6 +26,7 @@ const InitialState = {
 };
 
 export default function Profile() {
+  const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [profile, setProfile] = useState(InitialState);
   const [state, setState] = useState({
@@ -60,10 +62,9 @@ export default function Profile() {
   }, [isFocused]);
 
   const getProfile = async (refreshToken = null) => {
-    //securityCheck(); //logout if token expire
+    securityCheck(navigation); //logout if token expire
     const token = await getToken("authToken");
     const headers = { Authorization: refreshToken || token };
-    setProfile(InitialState);
     axios
       .get("/members/profile", headers)
       .then(async (response) => {
@@ -88,7 +89,7 @@ export default function Profile() {
         }));
       })
       .catch((error) => {
-        console.log(error);
+        console.error("Error On Fetch Member Profile Data", error.message);
       });
   };
 
@@ -98,7 +99,6 @@ export default function Profile() {
   };
 
   const updateProfile = async () => {
-    console.log(profile);
     if (!validateFields()) return;
     const token = await getToken("authToken");
     const updatedData = {

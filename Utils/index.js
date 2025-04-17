@@ -97,3 +97,18 @@ export const deleteToken = async (key) => {
     console.error("Error deleting token:", error);
   }
 };
+
+export const securityCheck = async (navigation) => {
+  try {
+    const token = await getToken("authToken");
+    if (!token) {
+      console.log("Token not found, navigating to Login");
+      if (isPlatformMobile() && navigation) navigation.navigate("Login");
+      else if (!!navigator) navigator.navigate("login");
+    }
+    return false;
+  } catch (error) {
+    console.error("Error in security check:", error.message);
+    return false;
+  }
+};
