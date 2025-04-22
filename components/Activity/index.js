@@ -1,13 +1,17 @@
-import { View, SafeAreaView, Platform, Text, FlatList } from "react-native";
+import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { axios, getToken } from "../../Utils";
+import config from "../../constants/config";
 import { useIsFocused } from "@react-navigation/native";
+import HocListFunction from "../../container/ListingScroll";
+import COLORS from "../../constants/colors";
+const apiDataLimit = config.apiDataLimit;
 
-export default function Activity() {
+function Activity({ refreshing, contentHeight, scrollView }) {
   const isFocused = useIsFocused();
   const [activity, setActivity] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [state, setState] = useState({ limit: 10, page: 0 });
+  const [loading, setLoading] = useState(false);
+  const [state, setState] = useState({ page: 0, next: false });
   const ActivityItem = useCallback(
     ({ item }) => (
       <View
@@ -26,41 +30,65 @@ export default function Activity() {
     const cliqueId = await getToken("tempClique");
     const authToken = await getToken("authToken");
     if (!cliqueId || !authToken) return;
+    let apiData = [];
     try {
-      const response = await fetch(
-        `https://clkclkdev.corelynx.com/api/members/activity?limit=${state.limit}&page=${state.page}&clique=${cliqueId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: authToken,
-          },
-        }
+      setLoading(true);
+      const response = await axios.get(
+        `/members/activity?limit=${apiDataLimit}&page=${state.page}&clique=${cliqueId}`
       );
-      const data = await response.json();
-      setActivity(data.data);
+      apiData = response.data.data;
+      setState((prev) => ({ ...prev, next: response.data.next }));
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching activity data:", error);
     } finally {
       setLoading(false);
+      return apiData;
     }
   };
 
+  const loadMoreData = async () => {
+    if (!state.next) return;
+    setState((prev) => ({ ...prev, page: parseInt(prev.page + apiDataLimit) }));
+    const loadoreData = await getActivity();
+    setActivity((prev) => [...prev, ...loadoreData]);
+  };
+
+  /* const onRefresh = async () => {
+    setState({ page: 0, next: false });
+    const listData = await getActivity();
+    setActivity(listData);
+  };*/
+
   useEffect(() => {
-    if (isFocused) getActivity();
-  }, [isFocused]);
+    (async () => {
+      if (isFocused) {
+        const listData = await getActivity();
+        setActivity(listData);
+      }
+    })();
+    return () => {
+      setActivity(null);
+      setState({ page: 0, next: false });
+    };
+  }, [isFocused, refreshing]);
+
+  useEffect(() => {
+    if (scrollView >= contentHeight - 10) loadMoreData();
+  }, [scrollView, contentHeight]);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View>
       <FlatList
-        style={{ flex: 1 }}
-        keyExtractor={({ _id }) => _id.toString()}
-        renderItem={ActivityItem}
-        refreshing={loading}
-        onRefresh={getActivity}
         data={activity}
-        onEndReachedThreshold={0.5}
+        style={{ flex: 1 }}
+        refreshing={loading}
+        renderItem={ActivityItem}
+        keyExtractor={({ _id }, index) => (_id + index).toString()}
+        // onRefresh={onRefresh}
       />
-    </SafeAreaView>
+      {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
+    </View>
   );
 }
+
+export default HocListFunction(Activity);
