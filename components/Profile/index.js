@@ -56,6 +56,7 @@ export default function Profile() {
     otherEmail: false,
     inputType: "password",
     isDatePickerOpen: false,
+    loading: false,
   });
 
   useEffect(() => {
@@ -100,7 +101,11 @@ export default function Profile() {
   };
 
   const updateProfile = async () => {
-    if (!validateFields()) return;
+    setState((prev) => ({ ...prev, loading: true }));
+    setTimeout(() => {
+      setState((prev) => ({ ...prev, loading: false }));
+    }, 3000);
+    /*if (!validateFields()) return;
     const token = await getToken("authToken");
     const updatedData = {
       ...profile,
@@ -112,7 +117,7 @@ export default function Profile() {
       editBirthDate: false,
     };
     const editedBy = ""; //this.props.auth?.user?.accessBy;
-    /*axios
+    axios
       .put("/api/members", {
         data: updatedData,
         id: state.id,
@@ -423,7 +428,7 @@ export default function Profile() {
           label="gender"
           value={profile.gender}
           options={config.genderOptions}
-          handleChange={value => handleInput("gender", value)}
+          handleChange={(value) => handleInput("gender", value)}
           placeholder="Select gender"
           isRequired={true}
         />
@@ -445,7 +450,11 @@ export default function Profile() {
           isRequired={true}
           isSecure={true}
         />
-        <Button label="Submit" handleSubmit={updateProfile} />
+        <Button
+          label="SUBMIT"
+          handleSubmit={updateProfile}
+          isLoading={state.loading}
+        />
       </View>
     </KeyboardAvoidingView>
   );
