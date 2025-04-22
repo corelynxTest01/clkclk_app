@@ -5,30 +5,22 @@ import config from "../../constants/config";
 import { useIsFocused } from "@react-navigation/native";
 import HocListFunction from "../../container/ListingScroll";
 import COLORS from "../../constants/colors";
+import SpendLoyaltyView from "../../view/spentLoyalty";
+import TransView from "../../view/transView";
+import ModalContainer from "../../container/ModalContainer";
 const apiDataLimit = config.apiDataLimit;
 
 function Activity({ refreshing, contentHeight, scrollView }) {
   const isFocused = useIsFocused();
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState("Hello world");
   const [state, setState] = useState({ page: 0, next: false });
-  const ActivityItem = useCallback(
-    ({ item }) => (
-      <View
-        style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: "#ddd" }}
-      >
-        <Text style={{ fontSize: 16, fontWeight: "bold" }}>
-          {item.transactionId}
-        </Text>
-        <Text>{item.creditDesc}</Text>
-      </View>
-    ),
-    []
-  );
 
   const getActivity = async () => {
     const cliqueId = await getToken("tempClique");
-    if (!cliqueId) return alert("Please select a clique");
+    if (!cliqueId) return alert("You don't have a clique select  yet.");
     let apiData = [];
     try {
       setLoading(true);
@@ -52,11 +44,15 @@ function Activity({ refreshing, contentHeight, scrollView }) {
     setActivity((prev) => [...prev, ...loadoreData]);
   };
 
-  /* const onRefresh = async () => {
-    setState({ page: 0, next: false });
-    const listData = await getActivity();
-    setActivity(listData);
-  };*/
+  const onListItemPress = (item) => {
+    setModalData(getView(item));
+    setModalVisible(true);
+  }
+
+  const onModalClose = () => {
+    setModalVisible(false);
+    setModalData(null);
+  }
 
   useEffect(() => {
     (async () => {
@@ -75,15 +71,21 @@ function Activity({ refreshing, contentHeight, scrollView }) {
     if (scrollView >= contentHeight - 10) loadMoreData();
   }, [scrollView, contentHeight]);
 
+  const ActivityItem = useCallback(({ item }) => (getListingView(item, onListItemPress)), [onListItemPress]);
+
   return (
     <View>
+      <ModalContainer visible={modalVisible} onClose={onModalClose}>
+        <View style={{ padding: 20, backgroundColor: COLORS.white, borderRadius: 10 }}>
+          <Text>{modalData}</Text>
+        </View>
+      </ModalContainer>
       <FlatList
         data={activity}
         style={{ flex: 1 }}
         refreshing={loading}
         renderItem={ActivityItem}
         keyExtractor={({ _id }, index) => (_id + index).toString()}
-        // onRefresh={onRefresh}
       />
       {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
     </View>
@@ -91,3 +93,36 @@ function Activity({ refreshing, contentHeight, scrollView }) {
 }
 
 export default HocListFunction(Activity);
+
+const getView = (item) => {
+  const { creditCode } = item;
+  switch (creditCode) {
+    case "677fb0glf9r3c":
+      return <SpendLoyaltyView {...item} />;
+    default:
+      return <TransView {...item} />;
+  }
+}
+
+const getListingView = (item, onListItemPress) => (
+  <View
+    style={{
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: "#ddd",
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      width: '100%',
+    }}
+  >
+    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
+      {new Date(item.createdDate).toLocaleDateString()}
+    </Text>
+    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
+      {item.creditDesc}
+    </Text>
+    <Text style={{ flex: 1, textAlign: 'center' }} onPress={() => onListItemPress(item)}>
+      ${" "}{item.creditAmount || 0.00}
+    </Text>
+  </View>)

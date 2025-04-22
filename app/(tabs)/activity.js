@@ -1,5 +1,5 @@
 import React from "react";
-import { SafeAreaView, View } from "react-native";
+import { SafeAreaView } from "react-native";
 import Styles from "../../Styles/index.styles";
 import Container from "../../container/Container";
 import AuthHeader from "../../components/AuthHeader";
