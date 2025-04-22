@@ -6,17 +6,16 @@ const AsyncStorage =
 // Constants
 const AUTH_HEADER = "Authorization";
 const Api_EndPoint = "https://clkclkdev.corelynx.com/api";
-const test_accessToken =
-  "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc1VzZXIiOmZhbHNlLCJpZCI6IjY3NzYzNDRhMGI1NzYxMWFjNzQ3NWNjNSIsInN0YXR1cyI6IkFjdGl2ZSIsIm5hbWUiOiJrb3VzaGlrIiwiZW1haWwiOiJjb3JlbHlueHRlc3QwMUBnbWFpbC5jb20iLCJwaG9uZSI6Ijk1NjQ2MjEzNzUiLCJpc0VtYWlsVmVyaWZpZWQiOnRydWUsImlzUGhvbmVWZXJpZmllZCI6dHJ1ZSwiaXNSZXF1aXJlRmllbGRzUHJlc2VudCI6ZmFsc2UsImlhdCI6MTc0NTI5Nzk1OSwiZXhwIjoxNzQ1MzQ4MzU5fQ.7q-ZuUI0HgtzZOEZnzU7CNutMcga7UE4SjNtMIWV89I";
-const default_header = {
+
+const getHeader = async () => ({
   headers: {
     "Content-Type": "application/json",
-    Authorization: test_accessToken,
+    Authorization: await getToken("authToken"),
   },
-};
+});
 
 // Create axios instance with custom config
-let axiosInstances = Axios.create({ timeout: 10000, ...default_header });
+let axiosInstances = Axios.create({ timeout: 10000, ...getHeader() });
 
 // Get user IP and add to headers
 fetch("https://api.ipify.org?format=json")
@@ -31,6 +30,7 @@ axiosInstances.interceptors.response.use(
     const { response } = error;
     if (response?.status === 401 && response?.data === "Unauthorized") {
       deleteToken("authToken");
+      deleteToken("tempClique");
     }
     return Promise.reject(error);
   }
@@ -51,15 +51,15 @@ export const setAuthToken = (token) => {
 
 // Helper methods for common HTTP requests
 export const axios = {
-  get: (url, config = default_header) =>
+  get: (url, config = getHeader()) =>
     axiosInstancepter().get(Api_EndPoint + url, config),
-  delete: (url, config = default_header) =>
+  delete: (url, config = getHeader()) =>
     axiosInstancepter().delete(Api_EndPoint + url, config),
-  put: (url, data = {}, config = default_header) =>
+  put: (url, data = {}, config = getHeader()) =>
     axiosInstancepter().put(Api_EndPoint + url, data, config),
-  post: (url, data = {}, config = default_header) =>
+  post: (url, data = {}, config = getHeader()) =>
     axiosInstancepter().post(Api_EndPoint + url, data, config),
-  patch: (url, data = {}, config = default_header) =>
+  patch: (url, data = {}, config = getHeader()) =>
     axiosInstancepter().patch(Api_EndPoint + url, data, config),
 };
 
@@ -86,7 +86,6 @@ export const getToken = async (key) => {
     let token = null;
     if (!isPlatformNotMob()) token = sessionStorage.getItem(key);
     else token = await AsyncStorage.getItem(key);
-    if (key === "authToken") return test_accessToken; //token;
     return token;
   } catch (error) {
     console.error("Error retrieving token:", error);

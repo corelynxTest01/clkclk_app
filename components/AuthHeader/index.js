@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import SelectContainer from "../../Elements/select";
-import { getToken, setToken } from "../../Utils";
+import { axios, getToken, setToken } from "../../Utils";
 import { useIsFocused } from "@react-navigation/native";
-import config from "../../constants/config";
 
 export default function AuthHeader(props) {
   const isFocused = useIsFocused();
   const [clique, setClique] = useState(null);
+  const [cliqueOptions, setCliqueOptions] = useState([]);
   useEffect(() => {
     if (!isFocused) return;
     (async () => {
-      const cliqueId = await getToken("tempClique");
-      setClique(cliqueId);
+      try {
+        const cliqueId = await getToken("tempClique");
+        setClique(cliqueId);
+        if (cliqueOptions.length > 0) return;
+        const response = await axios.get("/members/cliques");
+        const cliques = await response.data.data.map((clique) => ({
+          ...clique,
+          id: clique._id,
+        }));
+        setCliqueOptions(cliques);
+      } catch (error) {
+        console.error("Error fetching cliques:", error);
+      }
     })();
   }, [isFocused]);
 
@@ -29,7 +40,7 @@ export default function AuthHeader(props) {
       <View style={{ width: "60%", height: 20 }}>
         <SelectContainer
           name="clique"
-          options={config.democliqueOptions}
+          options={cliqueOptions}
           value={clique}
           handleChange={handleChange}
           placeholder="select Clique"

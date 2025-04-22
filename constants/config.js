@@ -201,29 +201,6 @@ const config = {
     { id: "66793bf1bad97ecc92dab18b", name: "eRefer email" },
     { id: "66793da1bad97eed14dab18f", name: "welcome email" },
     { id: "66793e50bad97e18a0dab191", name: "birthday email" },
-  ],
-  democliqueOptions: [
-    {
-      id: "677540f7bdb48405a23c45e8",
-      name: "Corelynx Kolkata",
-      website: "https://clkclk.com",
-      city: "kolkata",
-      state: "Alaska",
-      zip: "15444",
-      country: "United States",
-      address: {
-        address1: "Kolkata",
-        address2: "Kolkata02",
-      },
-      facebook: "https://www.facebook.com/",
-      twitter: "https://x.com/",
-      instagram: "https://www.instagram.com/",
-      image:
-        "https://clkclkassets.s3.amazonaws.com/tenants/4030a477-3cdb-4ad4-b6ff-6bf71c71ecd8_hyundai.png",
-      tenantId: "677540f7bdb48405a23c45e6",
-      description: "Clkclk kolkata",
-      loyalty: "",
-    },
-  ],
+  ]
 };
 export default config;

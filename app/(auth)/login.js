@@ -41,15 +41,13 @@ export default function Login() {
 
   const handleLogin = () => {
     setIsLoading(true);
-    axios.post("/members/login/", state).then(async (res) => {
+    axios.post("/members/login", state).then(async (res) => {
       if (res.data.success) {
         const { token } = res.data;
         await setToken("authToken", token);
         setState(initialState);
-        setTimeout(() => {
-          Router.push(config.member_redirect_after_login);
-          setIsLoading(false);
-        }, 3000);
+        Router.push(config.member_redirect_after_login);
+        setIsLoading(false);
       }
     });
   };

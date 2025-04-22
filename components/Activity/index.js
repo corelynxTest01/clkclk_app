@@ -28,8 +28,7 @@ function Activity({ refreshing, contentHeight, scrollView }) {
 
   const getActivity = async () => {
     const cliqueId = await getToken("tempClique");
-    const authToken = await getToken("authToken");
-    if (!cliqueId || !authToken) return;
+    if (!cliqueId) return alert("Please select a clique");
     let apiData = [];
     try {
       setLoading(true);
