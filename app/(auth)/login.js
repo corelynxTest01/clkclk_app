@@ -33,10 +33,10 @@ export default function Login() {
   };
 
   useEffect(() => {
-    async () => {
+    (async () => {
       const authToken = await getToken("authToken");
       if (!!authToken) Router.push(config.member_redirect_after_login);
-    };
+    })();
   }, []);
 
   const handleLogin = () => {

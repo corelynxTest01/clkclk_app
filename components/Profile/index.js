@@ -7,6 +7,7 @@ import Button from "../../Elements/button";
 import Input from "../../Elements/input";
 import config from "../../constants/config";
 import { useIsFocused } from "@react-navigation/native";
+import Select from "../../Elements/select";
 
 const InitialState = {
   firstName: "",
@@ -417,12 +418,13 @@ export default function Profile() {
           name="phone"
           isRequired={true}
         />
-        <Input
+        <Select
           name="gender"
-          style={styles.input}
-          placeholderTxt="gender"
+          label="gender"
           value={profile.gender}
-          handleChange={handleInput}
+          options={config.genderOptions}
+          handleChange={value => handleInput("gender", value)}
+          placeholder="Select gender"
           isRequired={true}
         />
         <Input
