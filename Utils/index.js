@@ -20,12 +20,10 @@ fetch("https://api.ipify.org?format=json")
 // Response interceptor
 axiosInstances.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     const { response } = error;
-    if (response?.status === 401 && response?.data === "Unauthorized") {
-      deleteToken("authToken");
-      deleteToken("tempClique");
-    }
+    if (response?.status === 401 && response?.data === "Unauthorized")
+      await clearToken();
     return Promise.reject(error);
   }
 );
@@ -98,23 +96,34 @@ const getHeader = async () => ({
 export const deleteToken = async (key) => {
   try {
     if (!isPlatformNotMob()) sessionStorage.removeItem(key);
-    else AsyncStorage.removeItem(key);
+    else await AsyncStorage.removeItem(key);
     delete Axios.defaults.headers.common[AUTH_HEADER];
   } catch (error) {
     console.error("Error deleting token:", error);
   }
 };
 
-export const securityCheck = async (navigation) => {
+export const clearToken = async () => {
+  try {
+    if (!isPlatformNotMob()) sessionStorage.clear();
+    else await AsyncStorage.clear();
+    delete Axios.defaults.headers.common[AUTH_HEADER];
+  } catch (error) {
+    console.error("Error clearing token:", error);
+  }
+};
+
+export const securityCheck = async (navigation = null) => {
   try {
     const token = await getToken("authToken");
     if (!token) {
       console.log("Token not found, navigating to Login");
       if (!isPlatformNotMob() && navigation)
-        navigation.navigate("login"); // This is for mobile Device
+        navigation.replace("/login"); // This is for mobile Device
       else if (!!navigator) navigator.navigate("login");
+      await clearToken();
     }
-    return false;
+    return;
   } catch (error) {
     console.error("Error in security check:", error.message);
     return false;
@@ -133,4 +142,5 @@ export function generateYearList() {
   return yearList;
 }
 
-export const formatAmount = (amount = 0) =>(+amount).toLocaleString("en-US", { style: "currency", currency: "USD" });
+export const formatAmount = (amount = 0) =>
+  (+amount).toLocaleString("en-US", { style: "currency", currency: "USD" });

@@ -1,5 +1,4 @@
 import { Text, View, SafeAreaView, Image } from "react-native";
-import { useRouter } from "expo-router";
 import Styles from "../Styles/index.styles";
 import Header from "../components/Header";
 import Footer from "../components/Footer";

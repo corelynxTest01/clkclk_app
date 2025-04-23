@@ -8,6 +8,7 @@ import COLORS from "../../constants/colors";
 import SpendLoyaltyView from "../../view/spentLoyalty";
 import TransView from "../../view/transView";
 import ModalContainer from "../../container/ModalContainer";
+import HtmlPreview from "../../Elements/htmlPreview";
 const apiDataLimit = config.apiDataLimit;
 
 const getView = (item) => {
@@ -20,7 +21,7 @@ const getView = (item) => {
   }
 };
 
-const getListingView = (item, onListItemPress) => (
+const getListingView = (item) => (
   <View
     style={{
       padding: 10,
@@ -32,18 +33,7 @@ const getListingView = (item, onListItemPress) => (
       width: "100%",
     }}
   >
-    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
-      {item.programType}
-    </Text>
-    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
-      {item.voucherNum}
-    </Text>
-    <Text
-      style={{ flex: 1, textAlign: "center" }}
-      onPress={() => onListItemPress(item)}
-    >
-      $ {item.discount || 0.0}
-    </Text>
+    <HtmlPreview htmlContent={item.body} />
   </View>
 );
 
@@ -72,7 +62,6 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
       console.error("Error fetching Loyalty data:", error);
     } finally {
       setLoading(false);
-      console.log("loyalty=>", apiData);
       return apiData;
     }
   };
