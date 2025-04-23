@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { useRouter } from "expo-router";
 import { View, StyleSheet } from "react-native";
 import SelectContainer from "../../Elements/select";
 import {
@@ -8,6 +7,7 @@ import {
   setToken,
   clearToken,
   securityCheck,
+  JwtDecode
 } from "../../Utils";
 import { useIsFocused } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -15,14 +15,14 @@ import COLORS from "../../constants/colors";
 
 export default function AuthHeader(props) {
   const isFocused = useIsFocused();
-  const router = useRouter();
   const [clique, setClique] = useState(null);
   const [cliqueOptions, setCliqueOptions] = useState([]);
+
   useEffect(() => {
     if (!isFocused) return;
     (async () => {
       try {
-        await securityCheck(router);
+        await securityCheck();
         const cliqueId = await getToken("tempClique");
         setClique(cliqueId);
         if (cliqueOptions.length > 0) return;
@@ -47,8 +47,19 @@ export default function AuthHeader(props) {
   };
 
   const logout = async () => {
-    router.replace("/login");
-    await clearToken();
+    try {
+      const token = await getToken("authToken");
+      if (!token) return;
+      const { id = null } = JwtDecode(token);
+      if (!id) return;
+      await axios.post(`/logout?id=${id}`)
+    } catch (error) {
+      console.log("Error logging out:", error);
+    } finally {
+      setClique(null);
+      setCliqueOptions([]);
+      await clearToken();
+    }
   };
 
   return (
@@ -86,7 +97,6 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     flexDirection: "row",
     justifyContent: "center",
-    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: "#ddd",
     fontFamily: "Inter, sans-serif",

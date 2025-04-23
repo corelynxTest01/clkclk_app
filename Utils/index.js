@@ -1,7 +1,8 @@
 import Axios from "axios";
 import moment from "moment";
-const AsyncStorage =
-  require("@react-native-async-storage/async-storage").default;
+import { jwtDecode } from "jwt-decode";
+import { router } from "expo-router";
+const AsyncStorage = require("@react-native-async-storage/async-storage").default;
 
 // Constants
 const AUTH_HEADER = "Authorization";
@@ -22,8 +23,7 @@ axiosInstances.interceptors.response.use(
   (response) => response,
   async (error) => {
     const { response } = error;
-    if (response?.status === 401 && response?.data === "Unauthorized")
-      await clearToken();
+    if (response?.status === 401 && response?.data === "Unauthorized") await clearToken();
     return Promise.reject(error);
   }
 );
@@ -108,22 +108,18 @@ export const clearToken = async () => {
     if (!isPlatformNotMob()) sessionStorage.clear();
     else await AsyncStorage.clear();
     delete Axios.defaults.headers.common[AUTH_HEADER];
+    router.replace("/login");
+    return true;
   } catch (error) {
     console.error("Error clearing token:", error);
   }
 };
 
-export const securityCheck = async (navigation = null) => {
+export const securityCheck = async () => {
   try {
     const token = await getToken("authToken");
-    if (!token) {
-      console.log("Token not found, navigating to Login");
-      if (!isPlatformNotMob() && navigation)
-        navigation.replace("/login"); // This is for mobile Device
-      else if (!!navigator) navigator.navigate("login");
-      await clearToken();
-    }
-    return;
+    if (!!token) return true;
+    return await clearToken();
   } catch (error) {
     console.error("Error in security check:", error.message);
     return false;
@@ -138,9 +134,20 @@ export function generateYearList() {
   for (let year = startYear; year <= endYear; year++) {
     yearList.push(year);
   }
-
   return yearList;
 }
 
 export const formatAmount = (amount = 0) =>
   (+amount).toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+export const JwtDecode = (token = null) => {
+  let decoded = null;
+  try {
+    if (!token) return;
+    decoded = jwtDecode(token);
+  } catch (error) {
+    console.log("Error decoding JWT:", error);
+  } finally {
+    return decoded;
+  }
+}

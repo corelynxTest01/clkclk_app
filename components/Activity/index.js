@@ -106,7 +106,7 @@ function Activity({ refreshing, contentHeight, scrollView }) {
   }, [isFocused, refreshing]);
 
   useEffect(() => {
-    if (scrollView >= contentHeight - 10) loadMoreData();
+    if (contentHeight !== 0 && scrollView >= contentHeight - 10) loadMoreData();
   }, [scrollView, contentHeight]);
 
   const ActivityItem = useCallback(
@@ -131,6 +131,7 @@ function Activity({ refreshing, contentHeight, scrollView }) {
         data={activity}
         style={{ flex: 1 }}
         refreshing={loading}
+        scrollEnabled={false}
         renderItem={ActivityItem}
         keyExtractor={({ _id }, index) => (_id + index).toString()}
       />

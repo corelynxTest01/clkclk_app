@@ -6,10 +6,9 @@ import {
   ActivityIndicator,
   Text,
 } from "react-native";
-import { router, useRouter } from "expo-router";
 import React, { useState, useEffect, useCallback } from "react";
 import { useIsFocused } from "@react-navigation/native";
-import { axios, securityCheck } from "../../Utils";
+import { axios } from "../../Utils";
 import COLORS from "../../constants/colors";
 import config from "../../constants/config";
 import GiftLoyalty from "../../view/Notification/GiftLoyalty";
@@ -19,7 +18,7 @@ import SelectContainer from "../../Elements/select";
 const initialState = {
   notifyType: "",
   page: 0,
-  limit: 10,
+  limit: 20,
   next: false,
 };
 
@@ -50,39 +49,47 @@ const getListingView = (item, isSeen) => (
 );
 
 export default function Notifications() {
-  const Router = useRouter();
   const isFocused = useIsFocused();
   const [loading, setLoading] = useState(false);
   const [state, setState] = useState(initialState);
   const [notification, setNotification] = useState(null);
 
+  const getNotification = async () => {
+    const apiData = [];
+    try {
+      setLoading(true);
+      const response = await axios.get(
+        `/notification?limit=${state.limit}&page=${state.page}&type=${state.notifyType}`
+      );
+      apiData.push(...response.data.data);
+      setState((prev) => ({ ...prev, next: response.data.next }));
+    } catch (error) {
+      console.error("Error fetching notification data:", error);
+    } finally {
+      setLoading(false);
+      return apiData;
+    }
+  }
+
   useEffect(() => {
     if (!isFocused) return;
     (async () => {
-      await securityCheck(Router);
-      setLoading(true);
-      let apiData = [];
-      try {
-        const response = await axios.get(
-          `/notification?limit=${state.limit}&page=${state.page}&type=${state.notifyType}`
-        );
-        apiData = response.data.data;
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setNotification(apiData);
-        setLoading(false);
-      }
+      const listData = await getNotification();
+      setNotification(listData);
     })();
     return () => {
       setNotification(null), setState(initialState);
     };
   }, [isFocused]);
 
-  const notificationItem = useCallback(
-    ({ item }) => getListingView(item, isSeen),
-    []
-  );
+  const notificationItem = useCallback(({ item }) => getListingView(item, isSeen), []);
+
+  const handInputleChange = async (value) => {
+    await setState((prev) => ({ ...prev, notifyType: value }));
+    if (!value) return setNotification(null);
+    const listData = await getNotification();
+    setNotification(listData);
+  }
 
   const isSeen = async (id) => {
     try {
@@ -97,26 +104,25 @@ export default function Notifications() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, alignItems: "center" }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <SelectContainer
         name="notifyType"
         options={config.notification.member}
         value={state.notifyType}
-        handleChange={(value) =>
-          setState((prev) => ({ ...prev, notifyType: value }))
-        }
+        handleChange={handInputleChange}
         placeholder="select type"
       />
-      {!loading && notification?.length === 0 && (
-        <Text>No notification found</Text>
-      )}
+
+      {!loading && notification?.length === 0 && (<Text>No notification found</Text>)}
+
       <View style={{ position: "relative" }}>
         <FlatList
           data={notification}
           style={{ flex: 1 }}
           refreshing={loading}
+          scrollEnabled={false}
           renderItem={notificationItem}
           keyExtractor={({ _id }, index) => (_id + index).toString()}
         />

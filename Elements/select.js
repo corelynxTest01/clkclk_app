@@ -9,12 +9,12 @@ export default function Select(props) {
 
     return <View style={styles.inputContainer}>
         {dispVal && props.label && <Text style={styles.floatingLabel}>{props.label}{props.isRequired && "*"}</Text>}
-        <View style={[styles.pickerContainer, props.pickerStyle]}>
+        <View style={[styles.pickerContainer]}>
             <Picker
                 selectedValue={dispVal}
                 onValueChange={props.handleChange}
                 enabled={!props.isDisabled}
-                style={styles.picker}
+                style={[styles.picker, props.pickerStyle]}
             >
                 {props?.placeholder && <Picker.Item label={props.placeholder + (props?.isRequired && "*" || "")} value="" />}
                 {props.options.map(({ id = null, value = null, name: label }, index) =>

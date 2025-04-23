@@ -28,14 +28,13 @@ export default function TransView({
   useEffect(() => {
     if (!memberId || !transactionId || !cliqueId) return;
     setLoading(true);
-    // Fetch transaction details
     (async () => {
       let apiData = {};
       try {
         const response = await axios.get(
           `/transactions?member=${memberId}&transaction=${transactionId}&clique=${cliqueId}`
         );
-        apiData = response.data?.data?.[0];
+        apiData = response.data?.data?.[0] || {};
       } catch (error) {
         console.error("Error fetching transaction details:", error.message);
       } finally {
@@ -75,7 +74,7 @@ export default function TransView({
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false} >
       {!loading && !state?.transDetails && <Text>No Data Found</Text>}
 
       {/* Header Row */}
@@ -160,6 +159,22 @@ export default function TransView({
               {formatAmount(state.transDetails?.total)}
             </Text>
           </View>
+
+          {!!state.transDetails?.status && !!creditCode &&
+            [config.creditCode["quick"], config.creditCode["detail"]].includes(creditCode) && (
+              <Text style={[styles.cell, styles.rightAlign, styles.summarySection, styles.boldFont]}>
+                status :{" "}
+                <Text
+                  style={{
+                    color: Object.is(state.transDetails.status, "paid")
+                      ? COLORS.green
+                      : COLORS.orange,
+                  }}
+                >
+                  {state.transDetails.status}
+                </Text>
+              </Text>
+            )}
         </View>
       )}
 
@@ -180,24 +195,6 @@ export default function TransView({
           {state.transDetails?.docNumber && (
             <Text>QuickBooks Invoice No: #{state.transDetails.docNumber}</Text>
           )}
-          {!!state.transDetails?.status &&
-            !!creditCode &&
-            [config.creditCode["quick"], config.creditCode["detail"]].includes(
-              creditCode
-            ) && (
-              <Text>
-                status :{" "}
-                <Text
-                  style={{
-                    color: Object.is(state.transDetails.status, "paid")
-                      ? COLORS.green
-                      : COLORS.orange,
-                  }}
-                >
-                  {state.transDetails.status}
-                </Text>
-              </Text>
-            )}
         </View>
       )}
 

@@ -1,7 +1,6 @@
 import { View, KeyboardAvoidingView, Platform } from "react-native";
-import { useNavigation } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { axios, getToken, securityCheck } from "../../Utils";
+import { axios, getToken } from "../../Utils";
 import styles from "../../Styles/login.styles";
 import Button from "../../Elements/button";
 import Input from "../../Elements/input";
@@ -27,7 +26,6 @@ const InitialState = {
 };
 
 export default function Profile() {
-  const navigation = useNavigation();
   const isFocused = useIsFocused();
   const [profile, setProfile] = useState(InitialState);
   const [state, setState] = useState({
@@ -64,7 +62,6 @@ export default function Profile() {
   }, [isFocused]);
 
   const getProfile = async (refreshToken = null) => {
-    securityCheck(navigation); //logout if token expire
     const token = await getToken("authToken");
     const headers = { Authorization: refreshToken || token };
     axios
@@ -134,7 +131,6 @@ export default function Profile() {
 
   /*
   sendOtp = () => {
-    //securityCheck();
     let accessToken = getToken();
     setProfile({ errorFromAPI: false }, () => {
       axios
@@ -153,7 +149,6 @@ export default function Profile() {
   };
 
   sendVerifyEmail = () => {
-    //securityCheck();
     let accessToken = getToken();
 
     setProfile({ errorFromAPI: false }, () => {
@@ -198,7 +193,6 @@ export default function Profile() {
 
   verifyPhone = () => {
     let accessToken = getToken();
-    //securityCheck();
 
     setProfile({ errorFromAPI: false }, () => {
       axios
@@ -227,7 +221,6 @@ export default function Profile() {
   };
 
   verifyEmail = () => {
-    //securityCheck();
 
     setProfile({ errorFromAPI: false }, () => {
       axios
@@ -254,7 +247,6 @@ export default function Profile() {
 
   handleCustomFields = (e) => {
     let accessToken = getToken();
-    //securityCheck();
 
     let { name, value } = e.target;
     let fields = [];

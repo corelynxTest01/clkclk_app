@@ -1,48 +1,19 @@
-import { View, Text, FlatList, loyaltyIndicator } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
+import { View, FlatList, ActivityIndicator } from "react-native";
 import { axios, getToken } from "../../Utils";
-import config from "../../constants/config";
+import HtmlPreview from "../../Elements/htmlPreview";
 import { useIsFocused } from "@react-navigation/native";
 import HocListFunction from "../../container/ListingScroll";
+
+import config from "../../constants/config";
 import COLORS from "../../constants/colors";
-import SpendLoyaltyView from "../../view/spentLoyalty";
-import TransView from "../../view/transView";
-import ModalContainer from "../../container/ModalContainer";
-import HtmlPreview from "../../Elements/htmlPreview";
+
 const apiDataLimit = config.apiDataLimit;
-
-const getView = (item) => {
-  const { creditCode } = item;
-  switch (creditCode) {
-    case config.creditCode["voucher"]:
-      return <SpendLoyaltyView {...item} />;
-    default:
-      return <TransView {...item} />;
-  }
-};
-
-const getListingView = (item) => (
-  <View
-    style={{
-      padding: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: "#ddd",
-      flexDirection: "row",
-      justifyContent: "space-between",
-      alignItems: "center",
-      width: "100%",
-    }}
-  >
-    <HtmlPreview htmlContent={item.body} />
-  </View>
-);
 
 function Loyalty({ refreshing, contentHeight, scrollView }) {
   const isFocused = useIsFocused();
   const [loyalty, setLoyalty] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalData, setModalData] = useState("Hello world");
   const [state, setState] = useState({ page: 0, next: false });
 
   const getLoyaltyRewards = async (status = "active") => {
@@ -52,8 +23,7 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
     try {
       setLoading(true);
       const response = await axios.get(
-        `/members/vouchers?limit=${apiDataLimit}&page=${
-          state.page
+        `/members/vouchers?limit=${apiDataLimit}&page=${state.page
         }&clique=${cliqueId}&search=${JSON.stringify({ status })}`
       );
       apiData = response.data.data;
@@ -73,22 +43,11 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
     setLoyalty((prev) => [...prev, ...loadoreData]);
   };
 
-  const onListItemPress = (item) => {
-    setModalData(getView(item));
-    setModalVisible(true);
-  };
-
-  const onModalClose = () => {
-    setModalVisible(false);
-    setModalData(null);
-  };
-
   useEffect(() => {
+    if (!isFocused) return;
     (async () => {
-      if (isFocused) {
-        const listData = await getLoyaltyRewards();
-        setLoyalty(listData);
-      }
+      const listData = await getLoyaltyRewards();
+      setLoyalty(listData);
     })();
     return () => {
       setLoyalty(null);
@@ -97,35 +56,22 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
   }, [isFocused, refreshing]);
 
   useEffect(() => {
-    if (scrollView >= contentHeight - 10) loadMoreData();
+    if (contentHeight !== 0 && scrollView >= contentHeight - 10) loadMoreData();
   }, [scrollView, contentHeight]);
 
-  const loyaltyItem = useCallback(
-    ({ item }) => getListingView(item, onListItemPress),
-    [onListItemPress]
-  );
+  const loyaltyItem = useCallback(({ item }) => <HtmlPreview htmlContent={item.body} />, []);
 
   return (
     <View>
-      <ModalContainer visible={modalVisible} onClose={onModalClose}>
-        <View
-          style={{
-            padding: 20,
-            backgroundColor: COLORS.white,
-            borderRadius: 10,
-          }}
-        >
-          <Text>{modalData}</Text>
-        </View>
-      </ModalContainer>
       <FlatList
         data={loyalty}
         style={{ flex: 1 }}
         refreshing={loading}
+        scrollEnabled={false}
         renderItem={loyaltyItem}
         keyExtractor={({ _id }, index) => (_id + index).toString()}
       />
-      {loading && <loyaltyIndicator size="large" color={COLORS.orange} />}
+      {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
     </View>
   );
 }
