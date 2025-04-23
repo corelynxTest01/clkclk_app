@@ -20,6 +20,8 @@ const COLORS = {
   light: "#f5f5f5",
   grey: "#a8a7a7",
   orange: "#f68832",
+  green: "#459a00",
+  blue: "#00679f",
 };
 
 // RETRO

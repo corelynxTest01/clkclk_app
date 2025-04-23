@@ -1,18 +1,27 @@
-import { SafeAreaView, View, Text } from "react-native";
+import React from "react";
+import { SafeAreaView } from "react-native";
 import Styles from "../../Styles/index.styles";
 import Container from "../../container/Container";
-import ScrollViewContainer from "../../container/ScrollViewContainer";
+import AuthHeader from "../../components/AuthHeader";
+import Loyalty from "../../components/Loyalty";
+import COLORS from "../../constants/colors";
 
-export default function loyalty() {
+export default function activity() {
+  const [refreshing, setRefreshing] = React.useState(0);
+  const headerUpdate = () => setRefreshing(refreshing + 1);
   return (
     <SafeAreaView style={Styles.container}>
-      <ScrollViewContainer>
-        <Container>
-          <Text style={{ fontSize: 24, marginBottom: 20, fontWeight: "bold" }}>
-            My Loyalty
-          </Text>
-        </Container>
-      </ScrollViewContainer>
+      <AuthHeader headerUpdate={headerUpdate} />
+      <Container
+        style={{
+          marginTop: 30,
+          backgroundColor: COLORS.backgroundColor,
+          padding: 25,
+          width: "100%",
+        }}
+      >
+        <Loyalty refreshing={refreshing} />
+      </Container>
     </SafeAreaView>
   );
 }

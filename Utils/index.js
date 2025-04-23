@@ -7,15 +7,9 @@ const AsyncStorage =
 const AUTH_HEADER = "Authorization";
 const Api_EndPoint = "https://clkclkdev.corelynx.com/api";
 
-const getHeader = async () => ({
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: await getToken("authToken"),
-  },
-});
-
 // Create axios instance with custom config
-let axiosInstances = Axios.create({ timeout: 10000, ...getHeader() });
+let axiosInstances = Axios.create({ timeout: 10000, headers: {} });
+axiosInstances.defaults.headers.common["Content-Type"] = "application/json";
 
 // Get user IP and add to headers
 fetch("https://api.ipify.org?format=json")
@@ -93,6 +87,13 @@ export const getToken = async (key) => {
   }
 };
 
+const getHeader = async () => ({
+  headers: {
+    "Content-Type": "application/json",
+    Authorization: await getToken("authToken"),
+  },
+});
+
 // Delete the token (for logout)
 export const deleteToken = async (key) => {
   try {
@@ -131,3 +132,5 @@ export function generateYearList() {
 
   return yearList;
 }
+
+export const formatAmount = (amount = 0) =>(+amount).toLocaleString("en-US", { style: "currency", currency: "USD" });

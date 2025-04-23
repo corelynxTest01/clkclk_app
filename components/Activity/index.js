@@ -8,7 +8,45 @@ import COLORS from "../../constants/colors";
 import SpendLoyaltyView from "../../view/spentLoyalty";
 import TransView from "../../view/transView";
 import ModalContainer from "../../container/ModalContainer";
+
 const apiDataLimit = config.apiDataLimit;
+
+const getView = (item) => {
+  const { creditCode } = item;
+  switch (creditCode) {
+    case config.creditCode["voucher"]:
+      return <SpendLoyaltyView {...item} />;
+    default:
+      return <TransView {...item} />;
+  }
+};
+
+const getListingView = (item, onListItemPress) => (
+  <View
+    style={{
+      padding: 10,
+      borderBottomWidth: 1,
+      borderBottomColor: "#ddd",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: "100%",
+    }}
+  >
+    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
+      {new Date(item.createdDate).toLocaleDateString()}
+    </Text>
+    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
+      {item.creditDesc}
+    </Text>
+    <Text
+      style={{ flex: 1, textAlign: "center" }}
+      onPress={() => onListItemPress(item)}
+    >
+      $ {item.creditAmount || 0.0}
+    </Text>
+  </View>
+);
 
 function Activity({ refreshing, contentHeight, scrollView }) {
   const isFocused = useIsFocused();
@@ -47,12 +85,12 @@ function Activity({ refreshing, contentHeight, scrollView }) {
   const onListItemPress = (item) => {
     setModalData(getView(item));
     setModalVisible(true);
-  }
+  };
 
   const onModalClose = () => {
     setModalVisible(false);
     setModalData(null);
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -71,12 +109,21 @@ function Activity({ refreshing, contentHeight, scrollView }) {
     if (scrollView >= contentHeight - 10) loadMoreData();
   }, [scrollView, contentHeight]);
 
-  const ActivityItem = useCallback(({ item }) => (getListingView(item, onListItemPress)), [onListItemPress]);
+  const ActivityItem = useCallback(
+    ({ item }) => getListingView(item, onListItemPress),
+    [onListItemPress]
+  );
 
   return (
     <View>
       <ModalContainer visible={modalVisible} onClose={onModalClose}>
-        <View style={{ padding: 20, backgroundColor: COLORS.white, borderRadius: 10 }}>
+        <View
+          style={{
+            padding: 20,
+            backgroundColor: COLORS.white,
+            borderRadius: 10,
+          }}
+        >
           <Text>{modalData}</Text>
         </View>
       </ModalContainer>
@@ -93,36 +140,3 @@ function Activity({ refreshing, contentHeight, scrollView }) {
 }
 
 export default HocListFunction(Activity);
-
-const getView = (item) => {
-  const { creditCode } = item;
-  switch (creditCode) {
-    case "677fb0glf9r3c":
-      return <SpendLoyaltyView {...item} />;
-    default:
-      return <TransView {...item} />;
-  }
-}
-
-const getListingView = (item, onListItemPress) => (
-  <View
-    style={{
-      padding: 10,
-      borderBottomWidth: 1,
-      borderBottomColor: "#ddd",
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      width: '100%',
-    }}
-  >
-    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
-      {new Date(item.createdDate).toLocaleDateString()}
-    </Text>
-    <Text style={{ flex: 1 }} onPress={() => onListItemPress(item)}>
-      {item.creditDesc}
-    </Text>
-    <Text style={{ flex: 1, textAlign: 'center' }} onPress={() => onListItemPress(item)}>
-      ${" "}{item.creditAmount || 0.00}
-    </Text>
-  </View>)
