@@ -575,3 +575,5 @@ export const ScratchCard4 = ({
     </div>
   );
 };
+
+export default ScratchCard;
