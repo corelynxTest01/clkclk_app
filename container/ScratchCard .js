@@ -232,3 +232,353 @@ const styles = StyleSheet.create({
 });
 
 export default ScratchCard;
+
+
+
+
+
+
+import React, { useRef, useEffect, useState } from 'react';
+
+const ScratchCard = ({ width, height, rewardImage }) => {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    // Set canvas size
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw the blur/mask
+    ctx.fillStyle = '#ccc'; // Grey color (or load a blurred image)
+    ctx.fillRect(0, 0, width, height);
+  }, [width, height]);
+
+  const startDrawing = (e) => {
+    setIsDrawing(true);
+    scratch(e);
+  };
+
+  const endDrawing = () => {
+    setIsDrawing(false);
+  };
+
+  const scratch = (e) => {
+    if (!isDrawing) return;
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+    ctx.globalCompositeOperation = 'destination-out'; // ERASE mode
+    ctx.beginPath();
+    ctx.arc(x, y, 20, 0, Math.PI * 2, false); // Circle scratch
+    ctx.fill();
+  };
+
+  return (
+    <div style={{ position: 'relative', width, height }}>
+      <img
+        src={rewardImage}
+        alt="Reward"
+        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{ position: 'absolute', top: 0, left: 0 }}
+        onMouseDown={startDrawing}
+        onMouseUp={endDrawing}
+        onMouseMove={scratch}
+        onTouchStart={startDrawing}
+        onTouchEnd={endDrawing}
+        onTouchMove={scratch}
+      />
+    </div>
+  );
+};
+
+export default ScratchCard;
+
+
+
+
+
+
+<ScratchCard
+  width={300}
+  height={300}
+  rewardImage="https://your-reward-image-url.com/reward.png"
+/>
+
+
+
+import React, { useRef, useEffect, useState } from 'react';
+
+const ScratchCard = ({ width, height, rewardImage, threshold = 60 }) => {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [scratchedPercentage, setScratchedPercentage] = useState(0);
+  const [isRevealed, setIsRevealed] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw blurred reward image
+    const img = new Image();
+    img.src = rewardImage;
+    img.onload = () => {
+      ctx.filter = 'blur(10px)'; // Apply blur effect
+      ctx.drawImage(img, 0, 0, width, height);
+      ctx.filter = 'none'; // reset filter
+    };
+  }, [rewardImage, width, height]);
+
+  const startDrawing = (e) => {
+    if (isRevealed) return;
+    setIsDrawing(true);
+    scratch(e);
+  };
+
+  const endDrawing = () => {
+    if (isRevealed) return;
+    setIsDrawing(false);
+    checkScratched();
+  };
+
+  const scratch = (e) => {
+    if (!isDrawing || isRevealed) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 25, 0, Math.PI * 2, false); // Brush size = 25
+    ctx.fill();
+  };
+
+  const checkScratched = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let total = 0;
+    let cleared = 0;
+
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      total++;
+      if (imageData.data[i + 3] === 0) { // alpha channel
+        cleared++;
+      }
+    }
+
+    const percentage = (cleared / total) * 100;
+    setScratchedPercentage(percentage.toFixed(2));
+
+    if (percentage > threshold) {
+      revealReward();
+    }
+  };
+
+  const revealReward = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // Remove all mask
+    setIsRevealed(true);
+  };
+
+  return (
+    <div style={{ position: 'relative', width, height }}>
+      <img
+        src={rewardImage}
+        alt="Reward"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+      />
+      <canvas
+        ref={canvasRef}
+        style={{ position: 'absolute', top: 0, left: 0, borderRadius: '12px' }}
+        onMouseDown={startDrawing}
+        onMouseUp={endDrawing}
+        onMouseMove={scratch}
+        onTouchStart={startDrawing}
+        onTouchEnd={endDrawing}
+        onTouchMove={scratch}
+      />
+      {/* Debug info: */}
+      {/* <div style={{ position: 'absolute', top: 10, left: 10, color: 'white' }}>
+        Scratched: {scratchedPercentage}%
+      </div> */}
+    </div>
+  );
+};
+
+export default ScratchCard;
+
+
+
+<ScratchCard
+  width={300}
+  height={300}
+  rewardImage="https://yourdomain.com/reward.png"
+  threshold={60} // Auto reveal after 60% scratch
+/>
+
+
+import React, { useRef, useEffect, useState } from 'react';
+import confetti from 'canvas-confetti'; // Make sure you install: npm install canvas-confetti
+
+const ScratchCard = ({ width, height, rewardImage, threshold = 60 }) => {
+  const canvasRef = useRef(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [scratchedPercentage, setScratchedPercentage] = useState(0);
+  const [isThresholdReached, setIsThresholdReached] = useState(false);
+  const [isRevealed, setIsRevealed] = useState(false);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = width;
+    canvas.height = height;
+
+    // Draw blurred reward image
+    const img = new Image();
+    img.src = rewardImage;
+    img.onload = () => {
+      ctx.filter = 'blur(10px)'; // Apply blur
+      ctx.drawImage(img, 0, 0, width, height);
+      ctx.filter = 'none'; // Reset filter
+    };
+  }, [rewardImage, width, height]);
+
+  const startDrawing = (e) => {
+    if (isRevealed) return;
+    setIsDrawing(true);
+    scratch(e);
+  };
+
+  const endDrawing = () => {
+    if (isRevealed) return;
+    setIsDrawing(false);
+    checkScratched();
+  };
+
+  const scratch = (e) => {
+    if (!isDrawing || isRevealed) return;
+
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    const x = (e.clientX || e.touches[0].clientX) - rect.left;
+    const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.beginPath();
+    ctx.arc(x, y, 25, 0, Math.PI * 2, false); // Brush size = 25
+    ctx.fill();
+  };
+
+  const checkScratched = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    let total = 0;
+    let cleared = 0;
+
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      total++;
+      if (imageData.data[i + 3] === 0) { // Alpha channel
+        cleared++;
+      }
+    }
+
+    const percentage = (cleared / total) * 100;
+    setScratchedPercentage(percentage.toFixed(2));
+
+    if (percentage > threshold && !isThresholdReached) {
+      setIsThresholdReached(true);
+    }
+  };
+
+  const revealReward = () => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    setIsRevealed(true);
+    launchConfetti();
+  };
+
+  const launchConfetti = () => {
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+    });
+  };
+
+  return (
+    <div style={{ position: 'relative', width, height }}>
+      <img
+        src={rewardImage}
+        alt="Reward"
+        style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '12px' }}
+      />
+      {!isRevealed && (
+        <canvas
+          ref={canvasRef}
+          style={{ position: 'absolute', top: 0, left: 0, borderRadius: '12px' }}
+          onMouseDown={startDrawing}
+          onMouseUp={endDrawing}
+          onMouseMove={scratch}
+          onTouchStart={startDrawing}
+          onTouchEnd={endDrawing}
+          onTouchMove={scratch}
+        />
+      )}
+      {/* Reveal Button */}
+      {isThresholdReached && !isRevealed && (
+        <button
+          onClick={revealReward}
+          style={{
+            position: 'absolute',
+            top: '40%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            padding: '10px 20px',
+            fontSize: '18px',
+            backgroundColor: '#ff4081',
+            color: 'white',
+            border: 'none',
+            borderRadius: '10px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 10px rgba(0,0,0,0.3)',
+          }}
+        >
+          Reveal Now
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default ScratchCard;
+
+
+      
+
+
+
+
+
+      
+
