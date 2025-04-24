@@ -18,10 +18,8 @@ import {
 export default function AuthHeader(props) {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const auth = useSelector(({ auth }) => auth);
+  const { selectedClique, cliqueOptions } = useSelector(({ auth }) => auth);
   const { setCliqueOptions, setSelectedClique, resetAll } = authActions;
-  const [clique, setClique] = useState(auth.selectedClique);
-  const [cliqueOptions, setCliqueOption] = useState(auth.cliqueOptions);
 
   useEffect(() => {
     if (!isFocused) return;
@@ -35,7 +33,6 @@ export default function AuthHeader(props) {
           id: clique._id,
         }));
         dispatch(setCliqueOptions(cliques));
-        setCliqueOption(cliques);
       } catch (error) {
         console.error("Error fetching cliques:", error);
       }
@@ -43,8 +40,7 @@ export default function AuthHeader(props) {
   }, [isFocused]);
 
   const handleChange = (value) => {
-    if (clique === value) return;
-    setClique(value);
+    if (selectedClique === value) return;
     dispatch(setSelectedClique(value));
     props?.headerUpdate && props.headerUpdate();
   };
@@ -59,8 +55,6 @@ export default function AuthHeader(props) {
     } catch (error) {
       console.log("Error logging out:", error);
     } finally {
-      setClique(null);
-      setCliqueOption([]);
       dispatch(resetAll());
       await clearToken();
     }
@@ -72,7 +66,7 @@ export default function AuthHeader(props) {
         <SelectContainer
           name="clique"
           options={cliqueOptions}
-          value={clique}
+          value={selectedClique}
           handleChange={handleChange}
           placeholder="select Clique"
         />
