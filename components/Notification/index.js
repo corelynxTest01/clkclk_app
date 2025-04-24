@@ -22,12 +22,12 @@ const initialState = {
   next: false,
 };
 
+const notificationType = config.notification.member.slice(1, 3);
+
 export const Listcontainer = (item, isSeen) => {
   const template = {
-    [config.notification.member[1].id]: (
-      <GiftLoyalty item={item} isSeen={isSeen} />
-    ),
-    [config.notification.member[2].id]: <Ereply item={item} isSeen={isSeen} />,
+    [notificationType[0].id]: <GiftLoyalty item={item} isSeen={isSeen} />,
+    [notificationType[1].id]: <Ereply item={item} isSeen={isSeen} />,
   };
   return template[item?.type?.toString()];
 };
@@ -69,7 +69,7 @@ export default function Notifications() {
       setLoading(false);
       return apiData;
     }
-  }
+  };
 
   useEffect(() => {
     if (!isFocused) return;
@@ -82,14 +82,17 @@ export default function Notifications() {
     };
   }, [isFocused]);
 
-  const notificationItem = useCallback(({ item }) => getListingView(item, isSeen), []);
+  const notificationItem = useCallback(
+    ({ item }) => getListingView(item, isSeen),
+    []
+  );
 
   const handInputleChange = async (value) => {
     await setState((prev) => ({ ...prev, notifyType: value }));
     if (!value) return setNotification(null);
     const listData = await getNotification();
     setNotification(listData);
-  }
+  };
 
   const isSeen = async (id) => {
     try {
@@ -109,13 +112,15 @@ export default function Notifications() {
     >
       <SelectContainer
         name="notifyType"
-        options={config.notification.member}
+        options={notificationType}
         value={state.notifyType}
         handleChange={handInputleChange}
-        placeholder="select type"
+        placeholder="all notification"
       />
 
-      {!loading && notification?.length === 0 && (<Text>No notification found</Text>)}
+      {!loading && notification?.length === 0 && (
+        <Text>No notification found</Text>
+      )}
 
       <View style={{ position: "relative" }}>
         <FlatList

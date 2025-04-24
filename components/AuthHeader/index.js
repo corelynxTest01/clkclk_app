@@ -1,22 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { View, StyleSheet } from "react-native";
 import SelectContainer from "../../Elements/select";
+import { useSelector, useDispatch } from "react-redux";
+import { authActions } from "../../Redux/Reducer/authReducer";
+import { useIsFocused } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
+import COLORS from "../../constants/colors";
 import {
   axios,
   getToken,
   setToken,
   clearToken,
   securityCheck,
-  JwtDecode
+  JwtDecode,
 } from "../../Utils";
-import { useIsFocused } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
-import COLORS from "../../constants/colors";
 
 export default function AuthHeader(props) {
+  const dispatch = useDispatch();
   const isFocused = useIsFocused();
-  const [clique, setClique] = useState(null);
-  const [cliqueOptions, setCliqueOptions] = useState([]);
+  const auth = useSelector(({ auth }) => auth);
+  const { setCliqueOptions, setSelectedClique, resetAll } = authActions;
+  const [clique, setClique] = useState(auth.selectedClique);
+  const [cliqueOptions, setCliqueOption] = useState(auth.cliqueOptions);
 
   useEffect(() => {
     if (!isFocused) return;
@@ -25,13 +30,14 @@ export default function AuthHeader(props) {
         await securityCheck();
         const cliqueId = await getToken("tempClique");
         setClique(cliqueId);
-        if (cliqueOptions.length > 0) return;
+        if (!!cliqueOptions) return;
         const response = await axios.get("/members/cliques");
         const cliques = await response.data.data.map((clique) => ({
           ...clique,
           id: clique._id,
         }));
-        setCliqueOptions(cliques);
+        dispatch(setCliqueOptions(cliques));
+        setCliqueOption(cliques);
       } catch (error) {
         console.error("Error fetching cliques:", error);
       }
@@ -39,11 +45,11 @@ export default function AuthHeader(props) {
   }, [isFocused]);
 
   const handleChange = (value) => {
-    if (clique !== value) {
-      setToken("tempClique", value);
-      setClique(value);
-      props?.headerUpdate && props.headerUpdate();
-    }
+    if (clique === value) return;
+    setClique(value);
+    setToken("tempClique", value);
+    dispatch(setSelectedClique(value));
+    props?.headerUpdate && props.headerUpdate();
   };
 
   const logout = async () => {
@@ -52,12 +58,13 @@ export default function AuthHeader(props) {
       if (!token) return;
       const { id = null } = JwtDecode(token);
       if (!id) return;
-      await axios.post(`/logout?id=${id}`)
+      await axios.post(`/logout?id=${id}`);
     } catch (error) {
       console.log("Error logging out:", error);
     } finally {
       setClique(null);
-      setCliqueOptions([]);
+      setCliqueOption([]);
+      dispatch(resetAll());
       await clearToken();
     }
   };

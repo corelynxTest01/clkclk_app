@@ -6,6 +6,8 @@ import styles from "../../Styles/login.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator } from "react-native";
 import loginImage from "../../assets/images/login.png";
+import { useSelector, useDispatch } from "react-redux";
+import { authActions } from "../../Redux/Reducer/authReducer";
 import {
   Platform,
   Text,
@@ -25,6 +27,9 @@ const initialState = {
 
 export default function Login() {
   const Router = useRouter();
+  const dispatch = useDispatch();
+  const { setAccessToken } = authActions;
+  const auth = useSelector(({ auth }) => auth);
   const [state, setState] = useState(initialState);
   const [showPwd, setShowPwd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -35,7 +40,8 @@ export default function Login() {
   useEffect(() => {
     (async () => {
       const authToken = await getToken("authToken");
-      if (!!authToken) Router.push(config.member_redirect_after_login);
+      if (!!authToken && auth.accesToken)
+        Router.push(config.member_redirect_after_login);
     })();
   }, []);
 
@@ -44,10 +50,11 @@ export default function Login() {
     axios.post("/members/login", state).then(async (res) => {
       if (res.data.success) {
         const { token } = res.data;
-        await setToken("authToken", token);
-        setState(initialState);
-        Router.push(config.member_redirect_after_login);
         setIsLoading(false);
+        setState(initialState);
+        dispatch(setAccessToken(token));
+        await setToken("authToken", token);
+        Router.push(config.member_redirect_after_login);
       }
     });
   };
