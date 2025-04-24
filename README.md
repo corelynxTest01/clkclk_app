@@ -18,7 +18,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 
 3. To Create APK File
   ```bash
-    npm install -g eas-cli
+    (1) npm install -g eas-cli 
+    (2) eas login
+    (2) eas build
    ```
 
 In the output, you'll find options to open the app in a
