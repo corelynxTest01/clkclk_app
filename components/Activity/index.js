@@ -1,10 +1,12 @@
 import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
-import { axios, getToken } from "../../Utils";
+import { axios } from "../../Utils";
+import NoCliqueSelected from "../../view/noCliqueSelected";
 import config from "../../constants/config";
 import { useIsFocused } from "@react-navigation/native";
 import HocListFunction from "../../container/ListingScroll";
 import COLORS from "../../constants/colors";
+import { useSelector } from "react-redux";
 import SpendLoyaltyView from "../../view/spentLoyalty";
 import TransView from "../../view/transView";
 import ModalContainer from "../../container/ModalContainer";
@@ -52,18 +54,18 @@ function Activity({ refreshing, contentHeight, scrollView }) {
   const isFocused = useIsFocused();
   const [activity, setActivity] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { selectedClique } = useSelector(({ auth }) => auth) || {};
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState("Hello world");
   const [state, setState] = useState({ page: 0, next: false });
 
   const getActivity = async () => {
-    const cliqueId = await getToken("tempClique");
-    if (!cliqueId) return alert("You don't have a clique select  yet.");
+    if (!selectedClique) return;
     let apiData = [];
     try {
       setLoading(true);
       const response = await axios.get(
-        `/members/activity?limit=${apiDataLimit}&page=${state.page}&clique=${cliqueId}`
+        `/members/activity?limit=${apiDataLimit}&page=${state.page}&clique=${selectedClique}`
       );
       apiData = response.data.data;
       setState((prev) => ({ ...prev, next: response.data.next }));
@@ -113,6 +115,8 @@ function Activity({ refreshing, contentHeight, scrollView }) {
     ({ item }) => getListingView(item, onListItemPress),
     [onListItemPress]
   );
+
+  if (!selectedClique) return <NoCliqueSelected />;
 
   return (
     <View>

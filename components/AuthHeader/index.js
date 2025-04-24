@@ -28,8 +28,6 @@ export default function AuthHeader(props) {
     (async () => {
       try {
         await securityCheck();
-        const cliqueId = await getToken("tempClique");
-        setClique(cliqueId);
         if (!!cliqueOptions) return;
         const response = await axios.get("/members/cliques");
         const cliques = await response.data.data.map((clique) => ({
@@ -47,7 +45,6 @@ export default function AuthHeader(props) {
   const handleChange = (value) => {
     if (clique === value) return;
     setClique(value);
-    setToken("tempClique", value);
     dispatch(setSelectedClique(value));
     props?.headerUpdate && props.headerUpdate();
   };

@@ -10,7 +10,7 @@ export default function notification() {
     <SafeAreaView style={Styles.container}>
       <AuthHeader />
       <ScrollViewContainer>
-        <Container style={{ marginBottom: 60, marginTop: 30 }}>
+        <Container>
           <Notifications />
         </Container>
       </ScrollViewContainer>

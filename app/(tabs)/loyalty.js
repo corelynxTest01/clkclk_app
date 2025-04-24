@@ -13,12 +13,7 @@ export default function activity() {
     <SafeAreaView style={Styles.container}>
       <AuthHeader headerUpdate={headerUpdate} />
       <Container
-        style={{
-          marginTop: 30,
-          backgroundColor: COLORS.backgroundColor,
-          padding: 25,
-          width: "100%",
-        }}
+        style={{ backgroundColor: COLORS.backgroundColor, marginTop: 35 }}
       >
         <Loyalty refreshing={refreshing} />
       </Container>

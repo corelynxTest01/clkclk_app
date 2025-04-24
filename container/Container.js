@@ -8,6 +8,8 @@ export default function Container({ children, style = {} }) {
       style={{
         flex: 1,
         padding: 20,
+        width: "100%",
+        marginTop: 30,
         backgroundColor: COLORS.backgroundColor,
         boxShadow: "0px 0px 10px 10px rgba(211, 211, 211, 0.2)",
         ...style,

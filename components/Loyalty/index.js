@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
-import { axios, getToken } from "../../Utils";
+import NoCliqueSelected from "../../view/noCliqueSelected";
+import { axios } from "../../Utils";
 import HtmlPreview from "../../Elements/htmlPreview";
 import { useIsFocused } from "@react-navigation/native";
 import HocListFunction from "../../container/ListingScroll";
-
+import { useSelector } from "react-redux";
 import config from "../../constants/config";
 import COLORS from "../../constants/colors";
 
@@ -12,19 +13,20 @@ const apiDataLimit = config.apiDataLimit;
 
 function Loyalty({ refreshing, contentHeight, scrollView }) {
   const isFocused = useIsFocused();
+  const { selectedClique } = useSelector(({ auth }) => auth) || {};
   const [loyalty, setLoyalty] = useState(null);
   const [loading, setLoading] = useState(false);
   const [state, setState] = useState({ page: 0, next: false });
 
   const getLoyaltyRewards = async (status = "active") => {
-    const cliqueId = await getToken("tempClique");
-    if (!cliqueId) return alert("You don't have a clique select  yet.");
+    if (!selectedClique) return;
     let apiData = [];
     try {
       setLoading(true);
       const response = await axios.get(
-        `/members/vouchers?limit=${apiDataLimit}&page=${state.page
-        }&clique=${cliqueId}&search=${JSON.stringify({ status })}`
+        `/members/vouchers?limit=${apiDataLimit}&page=${
+          state.page
+        }&clique=${selectedClique}&search=${JSON.stringify({ status })}`
       );
       apiData = response.data.data;
       setState((prev) => ({ ...prev, next: response.data.next }));
@@ -59,7 +61,12 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
     if (contentHeight !== 0 && scrollView >= contentHeight - 10) loadMoreData();
   }, [scrollView, contentHeight]);
 
-  const loyaltyItem = useCallback(({ item }) => <HtmlPreview htmlContent={item.body} />, []);
+  const loyaltyItem = useCallback(
+    ({ item }) => <HtmlPreview htmlContent={item.body} />,
+    []
+  );
+
+  if (!selectedClique) return <NoCliqueSelected />;
 
   return (
     <View>

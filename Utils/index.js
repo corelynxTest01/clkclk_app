@@ -1,8 +1,11 @@
 import Axios from "axios";
 import moment from "moment";
+import store from "../Redux/Store/index.js";
+import { authActions } from "../Redux/Reducer/authReducer";
 import { jwtDecode } from "jwt-decode";
 import { router } from "expo-router";
-const AsyncStorage = require("@react-native-async-storage/async-storage").default;
+const AsyncStorage =
+  require("@react-native-async-storage/async-storage").default;
 
 // Constants
 const AUTH_HEADER = "Authorization";
@@ -23,7 +26,10 @@ axiosInstances.interceptors.response.use(
   (response) => response,
   async (error) => {
     const { response } = error;
-    if (response?.status === 401 && response?.data === "Unauthorized") await clearToken();
+    if (response?.status === 401 && response?.data === "Unauthorized") {
+      store.dispatch(authActions.resetAll());
+      await clearToken();
+    }
     return Promise.reject(error);
   }
 );
@@ -150,4 +156,4 @@ export const JwtDecode = (token = null) => {
   } finally {
     return decoded;
   }
-}
+};

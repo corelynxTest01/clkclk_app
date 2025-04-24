@@ -8,10 +8,12 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useCallback } from "react";
 import { useIsFocused } from "@react-navigation/native";
+import { useSelector } from "react-redux";
 import { axios } from "../../Utils";
 import COLORS from "../../constants/colors";
 import config from "../../constants/config";
 import GiftLoyalty from "../../view/Notification/GiftLoyalty";
+import NoCliqueSelected from "../../view/noCliqueSelected";
 import Ereply from "../../view/Notification/EReply";
 import SelectContainer from "../../Elements/select";
 
@@ -53,13 +55,14 @@ export default function Notifications() {
   const [loading, setLoading] = useState(false);
   const [state, setState] = useState(initialState);
   const [notification, setNotification] = useState(null);
+  const { selectedClique } = useSelector(({ auth }) => auth) || {};
 
   const getNotification = async () => {
     const apiData = [];
     try {
       setLoading(true);
       const response = await axios.get(
-        `/notification?limit=${state.limit}&page=${state.page}&type=${state.notifyType}`
+        `/notification?limit=${state.limit}&page=${state.page}&type=${state.notifyType}&clique=${selectedClique}`
       );
       apiData.push(...response.data.data);
       setState((prev) => ({ ...prev, next: response.data.next }));
@@ -72,7 +75,7 @@ export default function Notifications() {
   };
 
   useEffect(() => {
-    if (!isFocused) return;
+    if (!isFocused || !selectedClique) return;
     (async () => {
       const listData = await getNotification();
       setNotification(listData);
@@ -80,7 +83,7 @@ export default function Notifications() {
     return () => {
       setNotification(null), setState(initialState);
     };
-  }, [isFocused]);
+  }, [isFocused, selectedClique]);
 
   const notificationItem = useCallback(
     ({ item }) => getListingView(item, isSeen),
@@ -88,7 +91,7 @@ export default function Notifications() {
   );
 
   const handInputleChange = async (value) => {
-    await setState((prev) => ({ ...prev, notifyType: value }));
+    setState((prev) => ({ ...prev, notifyType: value }));
     if (!value) return setNotification(null);
     const listData = await getNotification();
     setNotification(listData);
@@ -104,6 +107,8 @@ export default function Notifications() {
       console.error("Error marking notification as seen:", error);
     }
   };
+
+  if (!selectedClique) return <NoCliqueSelected />;
 
   return (
     <KeyboardAvoidingView

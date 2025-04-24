@@ -22,6 +22,9 @@ const COLORS = {
   orange: "#f68832",
   green: "#459a00",
   blue: "#00679f",
+  darkGrey: "#333333",
+  pink: "#ff008093",
+  red: "#d10101",
 };
 
 // RETRO

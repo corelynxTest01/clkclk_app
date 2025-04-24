@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import { Provider } from "react-redux";
-import store from "../Redux/Store"; // adjust if your path differs
+import store from "../Redux/Store";
 
 export default function RootLayout() {
   return (

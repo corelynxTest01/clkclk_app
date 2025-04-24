@@ -9,8 +9,8 @@ export default function myProfile() {
   return (
     <SafeAreaView style={Styles.container}>
       <AuthHeader />
-      <ScrollViewContainer >
-        <Container style={{ marginBottom: 60, marginTop: 30 }}>
+      <ScrollViewContainer>
+        <Container>
           <Profile />
         </Container>
       </ScrollViewContainer>

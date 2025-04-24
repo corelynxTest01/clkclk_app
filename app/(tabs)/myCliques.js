@@ -15,7 +15,7 @@ export default function myCliques(props) {
     <SafeAreaView style={Styles.container}>
       <AuthHeader headerUpdate={headerUpdate} />
       <ScrollViewContainer>
-        <Container style={{ marginBottom: 60, marginTop: 30 }}>
+        <Container>
           <Cliques refreshing={refreshing} />
         </Container>
       </ScrollViewContainer>
