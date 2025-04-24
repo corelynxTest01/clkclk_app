@@ -256,7 +256,6 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: "row",
     paddingVertical: 8,
-    borderBottomWidth: 1,
     borderBottomColor: "#eee",
     justifyContent: "space-evenly",
   },

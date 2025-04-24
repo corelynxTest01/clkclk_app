@@ -1,4 +1,3 @@
-// styles/login.styles.js
 import { StyleSheet, Dimensions } from "react-native";
 import COLORS from "../constants/colors";
 
@@ -20,8 +19,8 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   illustrationImage: {
-    width: width * 0.75,
-    height: width * 0.75,
+    width: width * 0.85,
+    height: width * 0.85,
   },
   card: {
     backgroundColor: COLORS.cardBackground,
