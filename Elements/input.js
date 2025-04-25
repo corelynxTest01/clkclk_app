@@ -1,5 +1,4 @@
 import {
-  Text,
   View,
   TextInput,
   StyleSheet,

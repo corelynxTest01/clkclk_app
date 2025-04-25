@@ -1,12 +1,18 @@
-import { View, KeyboardAvoidingView, Platform } from "react-native";
+import {
+  View,
+  KeyboardAvoidingView,
+  Platform,
+  ToastAndroid,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import { axios, getToken } from "../../Utils";
 import styles from "../../Styles/login.styles";
 import Button from "../../Elements/button";
 import Input from "../../Elements/input";
 import config from "../../constants/config";
-import { useIsFocused } from "@react-navigation/native";
 import Select from "../../Elements/select";
+//import DatePickerInput from "../../Elements/dateInput";
+import { useIsFocused } from "@react-navigation/native";
 
 const InitialState = {
   firstName: "",
@@ -100,6 +106,7 @@ export default function Profile() {
   const updateProfile = async () => {
     setState((prev) => ({ ...prev, loading: true }));
     setTimeout(() => {
+      ToastAndroid.show("Your Profile has been updated!", ToastAndroid.SHORT);
       setState((prev) => ({ ...prev, loading: false }));
     }, 3000);
     /*if (!validateFields()) return;
@@ -345,12 +352,10 @@ export default function Profile() {
       }
     );
   };
-
-  
-
-  getDateErr = (isErr) => {
-    setState({ errMsgDate: isErr });
-  };*/
+  const getDateErr = (isErr) => {
+    setState((prev) => ({ ...prev, errMsgDate: isErr }));
+  };
+  */
 
   const validateFields = () => {
     const requiredFields = config.memberReqFields;
@@ -415,6 +420,17 @@ export default function Profile() {
           name="phone"
           isRequired={true}
         />
+        {/* <DatePickerInput
+          readOnly={false}
+          name="birthDate"
+          isRequired={true}
+          style={styles.input}
+          id="memberBirthDate"
+          sendDateErr={getDateErr}
+          value={profile.birthDate}
+          handleChange={handleInput}
+          placeholderTxt="birthday (mm/dd/yyyy)"
+        /> */}
         <Select
           name="gender"
           label="gender"

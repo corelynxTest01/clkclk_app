@@ -1,158 +1,240 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  Text,
+  View,
+  TextInput,
+  StyleSheet,
+  Animated,
+  TouchableOpacity,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import COLORS from "../constants/colors";
 import moment from "moment";
-import Calender from "./calender";
 
-export default function DateInput({
-    id,
+export default DatePickerInput = React.memo(
+  ({
     name,
-    label,
-    onChange,
     value,
+    placeholderTxt,
+    handleChange,
+    isRequired = false,
     sendDateErr,
     readOnly = false,
-    isRequired = true,
-}) {
+  }) => {
+    const [show, setShow] = useState(false);
+    const [isFocused, setIsFocused] = useState(false);
     const [dateVal, setDateVal] = useState("");
     const [pickDate, setPickDate] = useState("");
     const [errDate, setErrDate] = useState(false);
     const [expiredDate, setExpiredDate] = useState(false);
     const [isLegal, setIsLegal] = useState(true);
+    const animatedValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
     useEffect(() => {
-        if (moment(value).isValid()) {
-            setDateVal(moment(value, "YYYY-MM-DD").format("MM/DD/YYYY"));
-            setPickDate(moment(value).format("MM/DD/YYYY"));
-        } else {
-            setErrDate(false);
-            setDateVal("");
-        }
+      if (!!value) animatedValue.setValue(1);
+      if (moment(value).isValid()) {
+        const formattedDate = moment(value, "YYYY-MM-DD").format("MM/DD/YYYY");
+        setDateVal(formattedDate);
+        setPickDate(formattedDate);
+      } else {
+        setErrDate(false);
+        setDateVal("");
+      }
     }, [value]);
 
-    const setDate = (date, name) => {
-        if (moment(date).isValid()) {
-            setPickDate(date);
-            const formattedDate = moment(date).format("MM/DD/YYYY");
-            setDateVal(formattedDate);
-            validate(formattedDate, name);
-            setErrDate(!moment(date, "MM/DD/YYYY", true).isValid());
-            onChange({ target: { name: name, value: moment(date, "MM/DD/YYYY", true).format("YYYY-MM-DD") } });
-        }
+    // useEffect(() => {
+    //   sendDateErr(errDate || !isLegal || expiredDate, name);
+    // }, [errDate, isLegal, expiredDate, name, sendDateErr]);
+
+    const handleFocus = useCallback(() => {
+      setIsFocused(true);
+      Animated.timing(animatedValue, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    }, [animatedValue]);
+
+    const handleBlur = useCallback(() => {
+      setIsFocused(false);
+      if (!value) {
+        Animated.timing(animatedValue, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    }, [animatedValue, value]);
+
+    const labelStyle = useMemo(
+      () => ({
+        position: "absolute",
+        left: 5,
+        top: animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [12, -14],
+        }),
+        fontSize: animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [16, 16],
+        }),
+        color: isFocused ? COLORS.orange : COLORS.black,
+        backgroundColor: COLORS.backgroundColor,
+        paddingHorizontal: 4,
+        zIndex: 1,
+        borderColor: "transparent",
+        borderWidth: animatedValue.interpolate({
+          inputRange: [0, 1],
+          outputRange: [0, 1],
+        }),
+        borderRadius: 4,
+      }),
+      [animatedValue, isFocused]
+    );
+
+    const onCalenderChange = useCallback(
+      (_, selectedDate) => {
+        handleChange(name, selectedDate);
+        setShow(false);
+      },
+      [handleChange, name]
+    );
+
+    const validate = useCallback((date, fieldName) => {
+      const givenDate = moment(date, "MM/DD/YYYY");
+      if (fieldName === "startDate")
+        setExpiredDate(
+          givenDate.isBefore(
+            new Date(moment().subtract("days").format("MM/DD/YYYY"))
+          )
+        );
+      else if (fieldName === "endDate") setExpiredDate(!givenDate.isAfter());
+      else if (fieldName === "birthDate")
+        setIsLegal(moment().diff(date, "years", true) >= 18);
+    }, []);
+
+    const setDate = (date, fieldName) => {
+      if (!moment(date).isValid()) return;
+      setPickDate(date);
+      const formattedDate = moment(date).format("MM/DD/YYYY");
+      setDateVal(formattedDate);
+      validate(formattedDate, fieldName);
+      const isValidDate = moment(date, "MM/DD/YYYY", true).isValid();
+      setErrDate(!isValidDate);
+      if (isValidDate) {
+        handleChange(
+          fieldName,
+          moment(date, "MM/DD/YYYY", true).format("YYYY-MM-DD")
+        );
+      }
     };
 
-    useEffect(() => {
-        sendDateErr(errDate || !isLegal || expiredDate, name);
-    }, [errDate, isLegal, expiredDate, sendDateErr, name]);
-
-    const validate = (date, name) => {
-        if (["startDate", "endDate"].includes(name)) {
-            let givenDate = moment(date, "MM/DD/YYYY");
-            if (name === "startDate") {
-                setExpiredDate(
-                    givenDate.isBefore(
-                        new Date(moment().subtract("days").format("MM/DD/YYYY"))
-                    )
-                );
-            } else if (name === "endDate") {
-                setExpiredDate(!givenDate.isAfter());
-            }
-        } else if (["birthDate"].includes(name)) {
-            let isLegal = moment().diff(date, "years", true) >= 18;
-            setIsLegal(isLegal);
+    const handleInput = useCallback(
+      (value) => {
+        if (!value) {
+          handleChange(name, value);
+          return;
         }
-    };
-
-    const handleInput = (e) => {
-        let value = e.nativeEvent.text;
-        if (!value) onChange({ target: { name: name, value: value } });
         if (value.length <= 10) {
-            if (moment(value, "MM/DD/YYYY", true).isValid()) {
-                const date = moment(value, "MM/DD/YYYY", true).format("YYYY-MM-DD");
-                onChange({ target: { name: name, value: date } });
-                setDate(value, name);
-                validate(value, name);
-            }
-            setErrDate(!moment(value, "MM/DD/YYYY", true).isValid());
-            setDateVal(value);
+          const isValidDate = moment(value, "MM/DD/YYYY", true).isValid();
+          if (isValidDate) {
+            handleChange(
+              name,
+              moment(value, "MM/DD/YYYY", true).format("YYYY-MM-DD")
+            );
+            setDate(value, name);
+            validate(value, name);
+          }
+          setErrDate(!isValidDate);
+          setDateVal(value);
         }
-    };
+      },
+      [name, handleChange, setDate, validate]
+    );
+
+    const formattedDateVal = useMemo(
+      () =>
+        dateVal
+          .replace(/^(\d\d)(\d)$/g, "$1/$2")
+          .replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2")
+          .replace(/[^\d\/]/g, ""),
+      [dateVal]
+    );
 
     return (
-        <View style={styles.container}>
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={[styles.input, readOnly && styles.readOnly]}
-                    name={name}
-                    id={id}
-                    value={dateVal
-                        .replace(/^(\d\d)(\d)$/g, "$1/$2")
-                        .replace(/^(\d\d\/\d\d)(\d+)$/g, "$1/$2")
-                        .replace(/[^\d\/]/g, "")}
-                    onChange={handleInput}
-                    placeholder={label}
-                    editable={!readOnly}
-                />
-            </View>
-
-            <TouchableOpacity style={styles.calendarContainer}>
-                <Calender
-                    name={name}
-                    id={"Calender_" + id}
-                    showIcon
-                    toggleCalendarOnIconClick
-                    selected={pickDate}
-                    onChange={(date) => setDate(date, name)}
-                    readOnly={readOnly}
-                />
-            </TouchableOpacity>
-
-            {dateVal && errDate && <Text style={styles.errorText}>Invalid date</Text>}
-            {!errDate && expiredDate && (
-                <Text style={styles.warningText}>Date is in the past!</Text>
-            )}
-            {!errDate && !isLegal && (
-                <Text style={styles.dangerText}>
-                    CLK CLK, Inc. requires users to be at least <Text style={styles.boldText}>18</Text> years old
-                </Text>
-            )}
-        </View>
+      <View style={styles.inputGroup}>
+        <Animated.Text style={labelStyle}>
+          {placeholderTxt}
+          {isRequired && "*"}
+        </Animated.Text>
+        <TextInput
+          style={[styles.inputStyle, isFocused && styles.focusedInput]}
+          inputMode="date"
+          onBlur={handleBlur}
+          onFocus={handleFocus}
+          onChangeText={handleInput}
+          value={formattedDateVal}
+          readOnly={readOnly}
+        />
+        <TouchableOpacity onPress={() => setShow(true)} style={styles.calender}>
+          <Ionicons name="calendar-clear" size={20} color={COLORS.grey} />
+        </TouchableOpacity>
+        {show && (
+          <DateTimePicker
+            mode="date"
+            is24Hour={true}
+            testID="dateTimePicker"
+            onChange={onCalenderChange}
+            value={!!pickDate ? new Date(pickDate) : new Date()}
+          />
+        )}
+        {dateVal && errDate && <Text style={styles.errText}>invalid date</Text>}
+        {!errDate && expiredDate && (
+          <Text style={styles.errText}>date is in the past!</Text>
+        )}
+        {!errDate && !isLegal && (
+          <Text style={styles.errText}>
+            CLK CLK, Inc. requires users to be at least{" "}
+            <Text style={{ fontWeight: "bold" }}>18</Text> years old
+          </Text>
+        )}
+      </View>
     );
-}
+  }
+);
 
+// Add this style to the inputStyle
 const styles = StyleSheet.create({
-    container: {
-        marginVertical: 10,
-    },
-    inputContainer: {
-        flex: 1,
-        marginBottom: 10,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: "#ccc",
-        borderRadius: 5,
-        padding: 10,
-        fontSize: 16,
-    },
-    readOnly: {
-        backgroundColor: "#f5f5f5",
-    },
-    calendarContainer: {
-        marginTop: 10,
-    },
-    errorText: {
-        color: "red",
-        fontSize: 14,
-    },
-    warningText: {
-        color: "orange",
-        fontSize: 14,
-    },
-    dangerText: {
-        color: "red",
-        fontSize: 14,
-    },
-    boldText: {
-        fontWeight: "bold",
-    },
+  inputGroup: {
+    marginBottom: 20,
+    position: "relative",
+  },
+  inputStyle: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    paddingHorizontal: 10,
+    paddingVertical: 12,
+    borderRadius: 4, // Add this to match the label border radius
+  },
+  focusedInput: {
+    borderColor: COLORS.border,
+    borderWidth: 1,
+  },
+  calender: {
+    top: 10,
+    right: 10,
+    position: "absolute",
+  },
+  errText: {
+    color: COLORS.orange,
+    fontSize: 12,
+    marginTop: 5,
+  },
 });
