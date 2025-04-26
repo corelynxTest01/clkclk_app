@@ -8,6 +8,7 @@ import { ActivityIndicator } from "react-native";
 import loginImage from "../../assets/images/login.png";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../Redux/Reducer/authReducer";
+import language from "../../Language"
 import {
   Platform,
   Text,
@@ -20,16 +21,22 @@ import { axios, setToken, getToken } from "../../Utils";
 import config from "../../constants/config";
 
 const initialState = {
-  forceLogin: true,
-  password: "1111111111",
-  phone: "9564621375",
+  phone: "",
+  password: "",
+  forceLogin: false,
 };
+
+const initialErrState = {
+  type: "",
+  message: "",
+}
 
 export default function Login() {
   const Router = useRouter();
   const dispatch = useDispatch();
   const { setAccessToken } = authActions;
   const auth = useSelector(({ auth }) => auth);
+  const [errObj, setErrObj] = useState(initialErrState);
   const [state, setState] = useState(initialState);
   const [showPwd, setShowPwd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -43,21 +50,33 @@ export default function Login() {
       if (!!authToken && auth.accesToken)
         Router.push(config.member_redirect_after_login);
     })();
+    return () => {
+      setState(initialState);
+      setErrObj(initialErrState);
+    }
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setIsLoading(true);
-    axios.post("/members/login", state).then(async (res) => {
-      if (res.data.success) {
-        const { token } = res.data;
+    try {
+      let loginObj = state;
+      loginObj["forceLogin"] = !!(errObj?.type === "alreadyLogin");
+      const responce = await axios.post("/members/login", loginObj);
+      const { success, token } = responce?.data || {};
+      if (success && token) {
         setIsLoading(false);
         setState(initialState);
         dispatch(setAccessToken(token));
         await setToken("authToken", token);
         Router.push(config.member_redirect_after_login);
       }
-    });
+    } catch (error) {
+      setErrObj(error?.response?.data);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -128,6 +147,28 @@ export default function Login() {
               </View>
             </View>
 
+            {(errObj?.type !== "alreadyLogin") &&
+              <View style={styles.forgotPassword}>
+                <TouchableOpacity
+                  onPress={() => Router.push("/pwdReset")}
+                >
+                  <Text style={styles.forgotPasswordText}>forgot password?</Text>
+                </TouchableOpacity>
+              </View>
+            }
+
+            {(errObj?.type === "alreadyLogin") &&
+              <View style={styles.err}>
+                <Text style={styles.errTxt}>{errObj?.message} {language.forceLogin}</Text>
+              </View>
+            }
+
+            {(errObj?.type !== "alreadyLogin") && errObj?.message &&
+              <View style={styles.err}>
+                <Text style={styles.errTxt}>{errObj?.message}</Text>
+              </View>
+            }
+
             <TouchableOpacity
               onPress={handleLogin}
               style={styles.button}
@@ -136,7 +177,7 @@ export default function Login() {
               {isLoading ? (
                 <ActivityIndicator size="large" color={COLORS.white} />
               ) : (
-                <Text style={styles.buttonText}>Login</Text>
+                <Text style={styles.buttonText}>{(errObj?.type === "alreadyLogin") ? "Proceed" : "Login"}</Text>
               )}
             </TouchableOpacity>
 

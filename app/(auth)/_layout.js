@@ -11,6 +11,10 @@ export default function AuthLayout() {
         name="signup"
         options={{ title: "signup", headerShown: false }}
       />
+      <Stack.Screen
+        name="pwdReset"
+        options={{ title: "pwdReset", headerShown: false }}
+      />
     </Stack>
   );
 }

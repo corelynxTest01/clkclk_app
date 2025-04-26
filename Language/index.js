@@ -9,6 +9,7 @@ export default Language = {
             <Text style={{ ...Styles.textBlue, fontWeight: "bold" }}>clk</Text>
         </Text>
     ),
+    forceLogin: " press Proceed to logout previous session and login to your clkclk account now.",
     cliqueClose: "This will purge all remaining loyalty points, rewards in progress, and any eReward that you may still have. This action cannot be undone.",
     accountClose: "You will lose access to your account, your rewards, rewards in progress, communication history, and more. This action cannot be undone.",
 }

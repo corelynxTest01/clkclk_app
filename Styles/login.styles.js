@@ -51,10 +51,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   formContainer: {
-    marginBottom: 16,
+    marginBottom: 10,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: 10,
   },
   label: {
     fontSize: 14,
@@ -112,6 +112,31 @@ const styles = StyleSheet.create({
   link: {
     color: COLORS.primary,
     fontWeight: "600",
+  },
+  forgotPassword: {
+    alignItems: "flex-end",
+  },
+  forgotPasswordText: {
+    fontSize: 15,
+    color: COLORS.orange,
+    fontWeight: "500",
+    textAlign: "right"
+  },
+  err: {
+    color: COLORS.red,
+    textAlign: "center",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    flexWrap: "wrap",
+  },
+  errTxt: {
+    fontSize: 14,
+    marginTop: 10,
+    color: COLORS.red,
+    fontWeight: "500",
+    textAlign: "center",
   },
 });
 
