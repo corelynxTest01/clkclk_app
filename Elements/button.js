@@ -11,20 +11,22 @@ export default Button = ({
   label,
   handleSubmit,
   isLoading = false,
+  btnStyle = {},
+  lblStyle = {},
   ...rest
 }) => {
   return (
     <View>
       <TouchableOpacity
         onPress={handleSubmit}
-        style={styles.button}
+        style={[styles.button, btnStyle]}
         disabled={isLoading}
         {...rest}
       >
         {isLoading ? (
           <ActivityIndicator size="large" color={COLORS.white} />
         ) : (
-          <Text style={styles.buttonStyle}>{label}</Text>
+          <Text style={[styles.labelText, lblStyle]}>{label}</Text>
         )}
       </TouchableOpacity>
     </View>
@@ -46,7 +48,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  buttonText: {
+  labelText: {
     color: COLORS.white,
     fontSize: 16,
     fontWeight: "600",

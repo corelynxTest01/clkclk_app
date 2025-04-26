@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, ActivityIndicator} from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { axios } from "../../Utils";
 import NoCliqueSelected from "../../view/noCliqueSelected";
@@ -56,7 +56,7 @@ function Activity({ refreshing, contentHeight, scrollView }) {
   const [loading, setLoading] = useState(false);
   const { selectedClique } = useSelector(({ auth }) => auth) || {};
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalData, setModalData] = useState("Hello world");
+  const [modalData, setModalData] = useState(null);
   const [state, setState] = useState({ page: 0, next: false });
 
   const getActivity = async () => {
@@ -120,6 +120,15 @@ function Activity({ refreshing, contentHeight, scrollView }) {
 
   return (
     <View>
+      {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
+      <FlatList
+        data={activity}
+        style={{ flex: 1 }}
+        refreshing={loading}
+        scrollEnabled={false}
+        renderItem={ActivityItem}
+        keyExtractor={({ _id }, index) => (_id + index).toString()}
+      />
       <ModalContainer visible={modalVisible} onClose={onModalClose}>
         <View
           style={{
@@ -131,15 +140,6 @@ function Activity({ refreshing, contentHeight, scrollView }) {
           <Text>{modalData}</Text>
         </View>
       </ModalContainer>
-      <FlatList
-        data={activity}
-        style={{ flex: 1 }}
-        refreshing={loading}
-        scrollEnabled={false}
-        renderItem={ActivityItem}
-        keyExtractor={({ _id }, index) => (_id + index).toString()}
-      />
-      {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
     </View>
   );
 }
