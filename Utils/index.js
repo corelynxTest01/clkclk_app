@@ -4,9 +4,6 @@ import store from "../Redux/Store/index.js";
 import { authActions } from "../Redux/Reducer/authReducer";
 import { jwtDecode } from "jwt-decode";
 import { router } from "expo-router";
-import * as Contacts from 'expo-contacts';
-import { Alert } from 'react-native';
-import * as Notifications from 'expo-notifications';
 const AsyncStorage =
   require("@react-native-async-storage/async-storage").default;
 
@@ -158,29 +155,5 @@ export const JwtDecode = (token = null) => {
     console.log("Error decoding JWT:", error);
   } finally {
     return decoded;
-  }
-};
-
-export const getContacts = async () => {
-  const { status } = await Contacts.requestPermissionsAsync({ message: "Allow access to connect with friends easily" });
-
-  if (status !== 'granted') {
-    Alert.alert('Permission Denied', 'Cannot access contacts without permission.');
-    return [];
-  }
-  const { data } = await Contacts.getContactsAsync({ fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Emails] });
-
-  if (data.length > 0) console.log('Contacts List Found:=>'/*, data*/);
-  else console.log('No contacts found');
-  return data;
-};
-
-export const sendNotification = async (deviceToken, message) => {
-  try {
-    const { status } = await Notifications.requestPermissionsAsync();
-    console.log('Notification Permission Status:', status);
-  } catch (error) {
-    console.error('Error sending notification:', error);
-    return false;
   }
 };

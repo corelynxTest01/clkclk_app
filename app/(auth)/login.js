@@ -17,7 +17,7 @@ import {
   KeyboardAvoidingView,
   TextInput,
 } from "react-native";
-import { axios, setToken, getToken, getContacts, sendNotification } from "../../Utils";
+import { axios, setToken, getToken } from "../../Utils";
 import config from "../../constants/config";
 
 const initialState = {
@@ -47,10 +47,8 @@ export default function Login() {
   useEffect(() => {
     (async () => {
       await sendNotification();
-      const data = await getContacts();
       const authToken = await getToken("authToken");
       if (!!authToken && auth.accesToken) return Router.push(config.member_redirect_after_login);
-      if (data.length > 0) setState((prev) => ({ ...prev, phone: auth.loginNo, password: "1111111111" }));
     })();
     return () => {
       setState(initialState);
