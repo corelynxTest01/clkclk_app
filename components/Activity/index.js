@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator} from "react-native";
+import { View, Text, FlatList, ActivityIndicator } from "react-native";
 import React, { useEffect, useState, useCallback } from "react";
 import { axios } from "../../Utils";
 import NoCliqueSelected from "../../view/noCliqueSelected";
@@ -10,6 +10,7 @@ import { useSelector } from "react-redux";
 import SpendLoyaltyView from "../../view/spentLoyalty";
 import TransView from "../../view/transView";
 import ModalContainer from "../../container/ModalContainer";
+import SkeletonView from "../../view/SkeletonView";
 
 const apiDataLimit = config.apiDataLimit;
 
@@ -120,7 +121,6 @@ function Activity({ refreshing, contentHeight, scrollView }) {
 
   return (
     <View>
-      {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
       <FlatList
         data={activity}
         style={{ flex: 1 }}
@@ -140,6 +140,7 @@ function Activity({ refreshing, contentHeight, scrollView }) {
           <Text>{modalData}</Text>
         </View>
       </ModalContainer>
+      {loading && <SkeletonView />}
     </View>
   );
 }

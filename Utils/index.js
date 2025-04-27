@@ -4,6 +4,8 @@ import store from "../Redux/Store/index.js";
 import { authActions } from "../Redux/Reducer/authReducer";
 import { jwtDecode } from "jwt-decode";
 import { router } from "expo-router";
+import * as Contacts from 'expo-contacts';
+import { Alert } from 'react-native';
 const AsyncStorage =
   require("@react-native-async-storage/async-storage").default;
 
@@ -156,4 +158,18 @@ export const JwtDecode = (token = null) => {
   } finally {
     return decoded;
   }
+};
+
+export const getContacts = async () => {
+  const { status } = await Contacts.requestPermissionsAsync({ message: "Allow access to connect with friends easily" });
+
+  if (status !== 'granted') {
+    Alert.alert('Permission Denied', 'Cannot access contacts without permission.');
+    return [];
+  }
+  const { data } = await Contacts.getContactsAsync({ fields: [Contacts.Fields.PhoneNumbers, Contacts.Fields.Emails] });
+
+  if (data.length > 0) console.log('Contacts List Found:=>'/*, data*/);
+  else console.log('No contacts found');
+  return data;
 };

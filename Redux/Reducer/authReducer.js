@@ -3,9 +3,10 @@ import authAction from "../Actions/authAction";
 
 const initialState = {
   accessToken: null,
+  notification: null,
   cliqueOptions: null,
   selectedClique: null,
-  notification: null,
+  loginNo: "9564621375",
 };
 
 const authSlice = createSlice({

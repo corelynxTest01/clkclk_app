@@ -31,16 +31,15 @@ export default Warning = () => {
                         transform: [{ scale: scaleAnim }],
                     },
                 ]}
-            > <Image source={errorPic} style={styles.image} />
+            ><Image source={errorPic} style={styles.image} />
             </Animated.View>
-            <Text style={{ fontSize: 16, fontWeight: 'bold',color:COLORS.orange }}> WARNING!</Text>
+            <Text style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.orange }}> WARNING!</Text>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     circleSection: {
-        marginBottom: 16,
         alignItems: 'center',
     },
     circle: {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, FlatList, ActivityIndicator } from "react-native";
+import { View, FlatList } from "react-native";
 import NoCliqueSelected from "../../view/noCliqueSelected";
 import { axios } from "../../Utils";
 import HtmlPreview from "../../Elements/htmlPreview";
@@ -7,7 +7,7 @@ import { useIsFocused } from "@react-navigation/native";
 import HocListFunction from "../../container/ListingScroll";
 import { useSelector } from "react-redux";
 import config from "../../constants/config";
-import COLORS from "../../constants/colors";
+import SkeletonView from "../../view/SkeletonView";
 
 const apiDataLimit = config.apiDataLimit;
 
@@ -24,8 +24,7 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
     try {
       setLoading(true);
       const response = await axios.get(
-        `/members/vouchers?limit=${apiDataLimit}&page=${
-          state.page
+        `/members/vouchers?limit=${apiDataLimit}&page=${state.page
         }&clique=${selectedClique}&search=${JSON.stringify({ status })}`
       );
       apiData = response.data.data;
@@ -78,7 +77,7 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
         renderItem={loyaltyItem}
         keyExtractor={({ _id }, index) => (_id + index).toString()}
       />
-      {loading && <ActivityIndicator size="large" color={COLORS.orange} />}
+      {loading && <SkeletonView />}
     </View>
   );
 }
