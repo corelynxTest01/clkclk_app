@@ -6,6 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { router } from "expo-router";
 import * as Contacts from 'expo-contacts';
 import { Alert } from 'react-native';
+import * as Notifications from 'expo-notifications';
 const AsyncStorage =
   require("@react-native-async-storage/async-storage").default;
 
@@ -172,4 +173,14 @@ export const getContacts = async () => {
   if (data.length > 0) console.log('Contacts List Found:=>'/*, data*/);
   else console.log('No contacts found');
   return data;
+};
+
+export const sendNotification = async (deviceToken, message) => {
+  try {
+    const { status } = await Notifications.requestPermissionsAsync();
+    console.log('Notification Permission Status:', status);
+  } catch (error) {
+    console.error('Error sending notification:', error);
+    return false;
+  }
 };
