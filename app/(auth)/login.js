@@ -3,19 +3,18 @@ import { useRouter } from "expo-router";
 import { Image } from "react-native";
 import COLORS from "../../constants/colors";
 import styles from "../../Styles/login.styles";
-import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator } from "react-native";
 import loginImage from "../../assets/images/login.png";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../Redux/Reducer/authReducer";
 import language from "../../Language";
+import Input from "../../Elements/input";
 import {
-  Platform,
   Text,
-  TouchableOpacity,
   View,
+  Platform,
+  TouchableOpacity,
   KeyboardAvoidingView,
-  TextInput,
 } from "react-native";
 import { axios, setToken, getToken } from "../../Utils";
 import config from "../../constants/config";
@@ -38,11 +37,7 @@ export default function Login() {
   const auth = useSelector(({ auth }) => auth);
   const [errObj, setErrObj] = useState(initialErrState);
   const [state, setState] = useState(initialState);
-  const [showPwd, setShowPwd] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const setFormValue = (name, value) => {
-    setState((prev) => ({ ...prev, [name]: value }));
-  };
 
   useEffect(() => {
     (async () => {
@@ -55,6 +50,10 @@ export default function Login() {
       setErrObj(initialErrState);
     };
   }, []);
+
+  const hanleInput = (name, value) => {
+    setState((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleLogin = async () => {
     setIsLoading(true);
@@ -92,7 +91,7 @@ export default function Login() {
         </View>
         <View style={styles.card}>
           <View style={styles.formContainer}>
-            {/* mobile */}
+            {/* //mobile //
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Mobile</Text>
               <View style={styles.inputContainer}>
@@ -115,10 +114,10 @@ export default function Login() {
                   maxLength={12}
                 />
               </View>
-            </View>
-
-            {/* password */}
-            <View style={styles.inputGroup}>
+            </View> 
+            
+            //password //
+             <View style={styles.inputGroup}>
               <Text style={styles.label}>Password</Text>
               <View style={styles.inputContainer}>
                 <Ionicons
@@ -148,7 +147,31 @@ export default function Login() {
                   />
                 </TouchableOpacity>
               </View>
-            </View>
+            </View> */}
+
+            <Input
+              name="phone"
+              maxLength={12}
+              isRequired={true}
+              style={styles.input}
+              keyboardType="number-pad"
+              handleChange={hanleInput}
+              placeholderTxt="Enter your mobile number"
+              value={state.phone?.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3")}
+            />
+
+            <Input
+              name="password"
+              maxLength={25}
+              isSecure={true}
+              isRequired={true}
+              style={styles.input}
+              value={state.password}
+              keyboardType="default"
+              handleChange={hanleInput}
+              placeholderTxt="Enter your password"
+              placeholderTextColor={COLORS.placeholderText}
+            />
 
             {errObj?.type !== "alreadyLogin" && (
               <View style={styles.forgotPassword}>
