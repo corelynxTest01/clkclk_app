@@ -106,7 +106,10 @@ export default function Login() {
                   style={styles.input}
                   placeholder="Enter your mobile number"
                   placeholderTextColor={COLORS.placeholderText}
-                  value={state.phone}
+                  value={state.phone?.replace(
+                    /(\d{3})(\d{3})(\d{4})/,
+                    "$1-$2-$3"
+                  )}
                   onChangeText={(value) => setFormValue("phone", value)}
                   keyboardType="number-pad"
                   maxLength={10}

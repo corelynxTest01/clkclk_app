@@ -414,7 +414,7 @@ export default function Profile() {
         <Input
           style={styles.input}
           placeholderTxt="phone number"
-          value={profile.phone[0]}
+          value={profile.phone[0]?.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3")}
           handleChange={handleInput}
           keyboardType="phone-pad"
           name="phone"
