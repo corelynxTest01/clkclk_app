@@ -201,6 +201,6 @@ const config = {
     { id: "66793bf1bad97ecc92dab18b", name: "eRefer email" },
     { id: "66793da1bad97eed14dab18f", name: "welcome email" },
     { id: "66793e50bad97e18a0dab191", name: "birthday email" },
-  ]
+  ],
 };
 export default config;

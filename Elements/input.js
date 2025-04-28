@@ -4,6 +4,7 @@ import {
   StyleSheet,
   Animated,
   TouchableOpacity,
+  Text,
 } from "react-native";
 import { useState, useRef, useEffect } from "react";
 import { Ionicons } from "@expo/vector-icons";
@@ -17,6 +18,8 @@ export default Input = ({
   handleChange,
   isRequired = false,
   isSecure = false,
+  errMsg = null,
+  isErr = false,
   ...rest
 }) => {
   const [isFocused, setIsFocused] = useState(false);
@@ -106,6 +109,7 @@ export default Input = ({
           />
         </TouchableOpacity>
       )}
+      {!!isErr && !!errMsg && <Text style={styles.errTxt}>{errMsg}</Text>}
     </View>
   );
 };
@@ -126,5 +130,11 @@ const styles = StyleSheet.create({
   focusedInput: {
     borderColor: COLORS.border,
     borderWidth: 1,
+  },
+  errTxt: {
+    color: COLORS.orange,
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: "center",
   },
 });
