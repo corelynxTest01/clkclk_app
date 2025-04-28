@@ -29,7 +29,7 @@ const initialState = {
 const initialErrState = {
   type: "",
   message: "",
-}
+};
 
 export default function Login() {
   const Router = useRouter();
@@ -46,14 +46,14 @@ export default function Login() {
 
   useEffect(() => {
     (async () => {
-      await sendNotification();
       const authToken = await getToken("authToken");
-      if (!!authToken && auth.accesToken) return Router.push(config.member_redirect_after_login);
+      if (!!authToken && auth.accesToken)
+        return Router.push(config.member_redirect_after_login);
     })();
     return () => {
       setState(initialState);
       setErrObj(initialErrState);
-    }
+    };
   }, []);
 
   const handleLogin = async () => {
@@ -147,27 +147,29 @@ export default function Login() {
               </View>
             </View>
 
-            {(errObj?.type !== "alreadyLogin") &&
+            {errObj?.type !== "alreadyLogin" && (
               <View style={styles.forgotPassword}>
-                <TouchableOpacity
-                  onPress={() => Router.push("/pwdReset")}
-                >
-                  <Text style={styles.forgotPasswordText}>forgot password?</Text>
+                <TouchableOpacity onPress={() => Router.push("/pwdReset")}>
+                  <Text style={styles.forgotPasswordText}>
+                    forgot password?
+                  </Text>
                 </TouchableOpacity>
               </View>
-            }
+            )}
 
-            {(errObj?.type === "alreadyLogin") &&
+            {errObj?.type === "alreadyLogin" && (
               <View style={styles.err}>
-                <Text style={styles.errTxt}>{errObj?.message} {language.forceLogin}</Text>
+                <Text style={styles.errTxt}>
+                  {errObj?.message} {language.forceLogin}
+                </Text>
               </View>
-            }
+            )}
 
-            {(errObj?.type !== "alreadyLogin") && errObj?.message &&
+            {errObj?.type !== "alreadyLogin" && errObj?.message && (
               <View style={styles.err}>
                 <Text style={styles.errTxt}>{errObj?.message}</Text>
               </View>
-            }
+            )}
 
             <TouchableOpacity
               onPress={handleLogin}
@@ -177,7 +179,9 @@ export default function Login() {
               {isLoading ? (
                 <ActivityIndicator size="large" color={COLORS.white} />
               ) : (
-                <Text style={styles.buttonText}>{(errObj?.type === "alreadyLogin") ? "Proceed" : "Login"}</Text>
+                <Text style={styles.buttonText}>
+                  {errObj?.type === "alreadyLogin" ? "Proceed" : "Login"}
+                </Text>
               )}
             </TouchableOpacity>
 
