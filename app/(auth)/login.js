@@ -112,7 +112,7 @@ export default function Login() {
                   )}
                   onChangeText={(value) => setFormValue("phone", value)}
                   keyboardType="number-pad"
-                  maxLength={10}
+                  maxLength={12}
                 />
               </View>
             </View>

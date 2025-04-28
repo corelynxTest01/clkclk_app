@@ -18,47 +18,48 @@ export default function MySetting() {
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalData, setModalData] = useState("Hello world");
-  const { selectedClique, cliqueOptions } = useSelector(({ auth }) => auth) || {};
+  const { selectedClique, cliqueOptions } =
+    useSelector(({ auth }) => auth) || {};
   const { setCliqueOptions, setSelectedClique, resetAll } = authActions;
 
   useEffect(() => {
     if (!isFocused) return;
-    const selecCliqueData = cliqueOptions?.find(clique => clique._id === selectedClique) || null;
+    const selecCliqueData =
+      cliqueOptions?.find((clique) => clique._id === selectedClique) || null;
     setClique(selecCliqueData);
     return () => setClique(null);
   }, [selectedClique, cliqueOptions, isFocused]);
 
-  const disConnectclique = async (cliqueId) => {
+  const disConnectclique = async (cliqueId = "") => {
     try {
       setLoading(true);
-      //await axios.post("/member/clique/disconnect", { cliqueId });
-      const newCliqueOptions = await cliqueOptions?.filter(clique => clique._id !== cliqueId) || [];
+      await axios.put("/members/removeClique", { cliqueId });
+      const newCliqueOptions =
+        (await cliqueOptions?.filter((clique) => clique._id !== cliqueId)) ||
+        [];
       dispatch(setCliqueOptions(newCliqueOptions));
       dispatch(setSelectedClique(null));
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error disconnecting from clique", error);
     } finally {
       setLoading(false);
       onModalClose();
     }
-  }
+  };
 
   const deleteAccount = async () => {
     try {
       setLoading(true);
-      //await axios.delete("/member/delete");
+      await axios.post("/members/delete");
       dispatch(resetAll());
       await clearToken();
-    }
-    catch (error) {
+    } catch (error) {
       console.error("Error In Account Deletion", error);
     } finally {
       setLoading(false);
       onModalClose();
     }
-  }
-
+  };
 
   const onModalOpen = (type) => {
     setModalVisible(true);
@@ -72,19 +73,21 @@ export default function MySetting() {
 
   const ModalObj = {
     clique: (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-        gap: 15,
-      }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20,
+          gap: 15,
+        }}
+      >
         <Warning />
         <Text
           style={{
             fontSize: 20,
             color: COLORS.blue,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           Are you sure you want to unsubscribe from this clique?
@@ -93,28 +96,35 @@ export default function MySetting() {
           style={{
             fontSize: 16,
             color: COLORS.grey,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           {language.cliqueClose}
         </Text>
-        <Button handleSubmit={() => disConnectclique(selectedClique)} label="Confirm" btnStyle={styles.modalCnfBtn} isLoading={loading} />
+        <Button
+          handleSubmit={() => disConnectclique(selectedClique)}
+          label="Confirm"
+          btnStyle={styles.modalCnfBtn}
+          isLoading={loading}
+        />
       </View>
     ),
     account: (
-      <View style={{
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 20,
-        gap: 20,
-      }}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 20,
+          gap: 20,
+        }}
+      >
         <Warning />
         <Text
           style={{
             fontSize: 20,
             color: COLORS.blue,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           Are you sure you wish to delete your {language.clkclkText} profile?
@@ -123,14 +133,19 @@ export default function MySetting() {
           style={{
             fontSize: 16,
             color: COLORS.grey,
-            textAlign: 'center',
+            textAlign: "center",
           }}
         >
           {language.accountClose}
         </Text>
-        <Button handleSubmit={deleteAccount} label="Confirm" btnStyle={styles.modalCnfBtn} isLoading={loading} />
+        <Button
+          handleSubmit={deleteAccount}
+          label="Confirm"
+          btnStyle={styles.modalCnfBtn}
+          isLoading={loading}
+        />
       </View>
-    )
+    ),
   };
 
   return (
@@ -147,7 +162,7 @@ export default function MySetting() {
         </TouchableOpacity>
       )}
       <TouchableOpacity onPress={() => onModalOpen("account")}>
-        <View style={styles.card} >
+        <View style={styles.card}>
           <Text style={styles.cardTxt}>
             permanently delete my {language.clkclkText} account
           </Text>
@@ -170,11 +185,11 @@ export default function MySetting() {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     borderRadius: 10,
     padding: 10,
     marginBottom: 15,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
@@ -189,6 +204,6 @@ const styles = StyleSheet.create({
   },
   modalCnfBtn: {
     width: 100,
-    backgroundColor: COLORS.orange
-  }
+    backgroundColor: COLORS.orange,
+  },
 });

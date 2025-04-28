@@ -412,13 +412,14 @@ export default function Profile() {
           isRequired={true}
         />
         <Input
+          name="phone"
+          maxLength={12}
+          isRequired={true}
           style={styles.input}
+          keyboardType="phone-pad"
+          handleChange={handleInput}
           placeholderTxt="phone number"
           value={profile.phone[0]?.replace(/(\d{3})(\d{3})(\d{4})/, "$1-$2-$3")}
-          handleChange={handleInput}
-          keyboardType="phone-pad"
-          name="phone"
-          isRequired={true}
         />
         {/* <DatePickerInput
           readOnly={false}
