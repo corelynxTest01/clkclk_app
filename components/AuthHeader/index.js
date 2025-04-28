@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { View, StyleSheet } from "react-native";
 import SelectContainer from "../../Elements/select";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,7 +9,6 @@ import COLORS from "../../constants/colors";
 import {
   axios,
   getToken,
-  setToken,
   clearToken,
   securityCheck,
   JwtDecode,
