@@ -129,6 +129,13 @@ function Activity({ refreshing, contentHeight, scrollView }) {
         renderItem={ActivityItem}
         keyExtractor={({ _id }, index) => (_id + index).toString()}
       />
+      {activity?.length === 0 && (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text>No data found</Text>
+        </View>
+      )}
       <ModalContainer visible={modalVisible} onClose={onModalClose}>
         <View
           style={{

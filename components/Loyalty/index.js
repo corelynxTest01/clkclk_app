@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { View, FlatList } from "react-native";
+import { Text, View, FlatList } from "react-native";
 import NoCliqueSelected from "../../view/noCliqueSelected";
 import { axios } from "../../Utils";
 import HtmlPreview from "../../Elements/htmlPreview";
@@ -24,7 +24,8 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
     try {
       setLoading(true);
       const response = await axios.get(
-        `/members/vouchers?limit=${apiDataLimit}&page=${state.page
+        `/members/vouchers?limit=${apiDataLimit}&page=${
+          state.page
         }&clique=${selectedClique}&search=${JSON.stringify({ status })}`
       );
       apiData = response.data.data;
@@ -78,6 +79,13 @@ function Loyalty({ refreshing, contentHeight, scrollView }) {
         keyExtractor={({ _id }, index) => (_id + index).toString()}
       />
       {loading && <SkeletonView />}
+      {loyalty?.length === 0 && (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <Text>No data found</Text>
+        </View>
+      )}
     </View>
   );
 }
