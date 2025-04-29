@@ -50,6 +50,10 @@ export default Input = ({
     }
   };
 
+  const onPlaceHolderPress = () => {
+    !!isFocused ? handleBlur() : handleFocus();
+  };
+
   // Modify the labelStyle object to include a border
   const labelStyle = {
     position: "absolute",
@@ -80,7 +84,7 @@ export default Input = ({
 
   return (
     <View style={styles.inputGroup}>
-      <Animated.Text style={labelStyle}>
+      <Animated.Text style={labelStyle} onPress={onPlaceHolderPress}>
         {placeholderTxt}
         {isRequired && "*"}
       </Animated.Text>
