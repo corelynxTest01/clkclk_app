@@ -1,6 +1,5 @@
 import { View, Image, StyleSheet, Animated, Text } from 'react-native';
-import React, { useEffect, useRef } from 'react';
-import errorPic from '../assets/images/error.png';
+import { useEffect, useRef } from 'react';
 import COLORS from '../constants/colors';
 
 export default Warning = () => {
@@ -31,7 +30,7 @@ export default Warning = () => {
                         transform: [{ scale: scaleAnim }],
                     },
                 ]}
-            ><Image source={errorPic} style={styles.image} />
+            ><Image source={require("../assets/images/error.png")} style={styles.image} />
             </Animated.View>
             <Text style={{ fontSize: 16, fontWeight: 'bold', color: COLORS.orange }}> WARNING!</Text>
         </View>

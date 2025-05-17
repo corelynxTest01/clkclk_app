@@ -4,7 +4,6 @@ import { Image } from "react-native";
 import COLORS from "../../constants/colors";
 import styles from "../../Styles/login.styles";
 import { ActivityIndicator } from "react-native";
-import loginImage from "../../assets/images/login.png";
 import { useSelector, useDispatch } from "react-redux";
 import { authActions } from "../../Redux/Reducer/authReducer";
 import language from "../../Language";
@@ -84,7 +83,7 @@ export default function Login() {
       <View style={styles.container}>
         <View style={styles.illustrationImage}>
           <Image
-            source={loginImage}
+            source={require("../../assets/images/login.png")}
             style={styles.illustrationImage}
             resizeMode="contain"
           />

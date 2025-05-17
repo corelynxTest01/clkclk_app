@@ -5,8 +5,6 @@ import COLORS from "../../constants/colors";
 import styles from "../../Styles/login.styles";
 import { Ionicons } from "@expo/vector-icons";
 import { ActivityIndicator } from "react-native";
-import clkclk from "../../assets/images/clkclk.png";
-import language from "../../Language"
 import {
     Platform,
     Text,
@@ -15,7 +13,6 @@ import {
     KeyboardAvoidingView,
     TextInput,
 } from "react-native";
-import { axios } from "../../Utils";
 
 const initialState = { phone: "" };
 
@@ -60,7 +57,7 @@ export default function Login() {
             <View style={styles.container}>
                 <View style={styles.illustrationImage}>
                     <Image
-                        source={clkclk}
+                        source={require("../../assets/images/clkclk.png")}
                         style={styles.illustrationImage}
                         resizeMode="contain"
                     />

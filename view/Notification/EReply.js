@@ -1,9 +1,6 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
 import { Rating } from "react-native-ratings";
-import stargry from "../../assets/images/stargry.png";
-import starblu from "../../assets/images/starblu.png";
-import trashSign from "../../assets/images/removeIcon.png";
 
 export default Ereply = memo(({ item, isSeen }) => {
   return (
@@ -16,8 +13,8 @@ export default Ereply = memo(({ item, isSeen }) => {
             imageSize={20}
             ratingCount={20}
             readonly
-            imageEmpty={stargry}
-            imageFull={starblu}
+            imageEmpty={require("../../assets/images/stargry.png")}
+            imageFull={require("../../assets/images/starblu.png")}
           />
         </View>
         <TouchableOpacity>
@@ -34,7 +31,7 @@ export default Ereply = memo(({ item, isSeen }) => {
         style={styles.closeButton}
         onPress={() => isSeen(item._id)}
       >
-        <Image source={trashSign} style={styles.trashIcon} />
+        <Image source={require("../../assets/images/removeIcon.png")} style={styles.trashIcon} />
       </TouchableOpacity>
     </View>
   );

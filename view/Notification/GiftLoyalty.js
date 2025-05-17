@@ -1,6 +1,5 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import { View, Text, Image, TouchableOpacity, StyleSheet } from "react-native";
-import trashSign from "../../assets/images/removeIcon.png";
 import COLORS from "../../constants/colors";
 
 export default Giftloyalty = memo(({ item, isSeen }) => {
@@ -15,7 +14,7 @@ export default Giftloyalty = memo(({ item, isSeen }) => {
         </View>
       </View>
       <TouchableOpacity onPress={() => isSeen(item._id)}>
-        <Image source={trashSign} style={styles.icon} />
+        <Image source={require("../../assets/images/removeIcon.png")} style={styles.icon} />
       </TouchableOpacity>
     </View>
   );
